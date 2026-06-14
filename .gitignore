@@ -1,0 +1,10 @@
+nhanes_clean.csv
+*.pkl
+__pycache__/
+*.pyc
+.env
+.DS_Store
+*.zip
+nhanes_raw/
+venv/
+.venv/
