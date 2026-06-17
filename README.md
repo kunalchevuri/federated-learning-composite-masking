@@ -58,6 +58,7 @@ Download: https://archive.org/download/continuous-nhanes/ContinuousNHANES.zip
 |---|---|---|
 | C1 | Centralized equal-weight | Ground truth baseline |
 | C2 | Centralized weighted loss | Fix direction validation |
+| C2-FL | Federated weighted loss | Fix direction validated under federation |
 | C3 | FedAvg | Standard FL baseline |
 | C4 | SCAFFOLD | Drift-corrected FL |
 | C5 | CS-Agg | Trust-weighted FL |
@@ -68,7 +69,7 @@ Download: https://archive.org/download/continuous-nhanes/ContinuousNHANES.zip
 
 - src/ — all experiment scripts
 - results/ — experiment output CSVs (copied from Colab)
-- figures/ — all 6 paper figures
+- figures/ — all 9 paper figures
 - paper/ — methodology section and paper drafts
 - docs/ — requirements and experiment plan
 
