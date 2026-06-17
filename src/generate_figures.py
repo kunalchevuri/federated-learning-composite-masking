@@ -291,23 +291,30 @@ savefig(os.path.join(figures_dir, 'fig3_convergence.png'),
 # ══════════════════════════════════════════════════════════════════════════════
 print("\n[Fig 4] Fix Proof (Violin + Strip)")
 
-# FIX 1: pool all 3 seeds, sort by client_id within each seed → 60 pairs
+# FIX 1: pool all 3 seeds, sort by client_id within each seed, truncate to
+# the shortest of the three so every triple has data for all three conditions
 c1_sorted, c2_sorted, cfl_sorted = [], [], []
 for seed in [42, 123, 456]:
-    c1_s = (df[(df['method'] == 'centralized') & (df['seed'] == seed)]
-            .sort_values('client_id')['masking_gap'].values)
-    c2_s = (df[(df['method'] == 'centralized_weighted') & (df['seed'] == seed)]
-            .sort_values('client_id')['masking_gap'].values)
-    cfl_s = (df[(df['method'] == 'federated_separate') & (df['seed'] == seed)]
-             .sort_values('client_id')['masking_gap'].values)
-    if len(c1_s) > 0 and len(c2_s) == len(c1_s) and len(cfl_s) == len(c1_s):
-        c1_sorted.extend(c1_s)
-        c2_sorted.extend(c2_s)
-        cfl_sorted.extend(cfl_s)
+    c1_seed = (df[(df['method'] == 'centralized') & (df['seed'] == seed)]
+               .sort_values('client_id')['masking_gap'].values)
+    c2_seed = (df[(df['method'] == 'centralized_weighted') & (df['seed'] == seed)]
+               .sort_values('client_id')['masking_gap'].values)
+    cfl_seed = (df[(df['method'] == 'federated_separate') & (df['seed'] == seed)]
+                .sort_values('client_id')['masking_gap'].values)
+
+    min_len = min(len(c1_seed), len(c2_seed), len(cfl_seed))
+    c1_sorted.extend(c1_seed[:min_len])
+    c2_sorted.extend(c2_seed[:min_len])
+    cfl_sorted.extend(cfl_seed[:min_len])
 
 c1_arr  = np.array(c1_sorted)
 c2_arr  = np.array(c2_sorted)
 cfl_arr = np.array(cfl_sorted)
+
+print(f"Paired samples: {len(c1_arr)}")
+print(f"C1 mean: {c1_arr.mean():.4f}")
+print(f"C2 mean: {c2_arr.mean():.4f}")
+print(f"C2-FL mean: {cfl_arr.mean():.4f}")
 
 # FIX 1: Wilcoxon with alternative='less' (fix methods expected lower)
 p_c2, p_cfl = np.nan, np.nan
@@ -315,6 +322,26 @@ if len(c2_arr) == len(c1_arr) and len(c1_arr) > 0:
     _, p_c2  = wilcoxon(c2_arr,  c1_arr, alternative='less')
 if len(cfl_arr) == len(c1_arr) and len(c1_arr) > 0:
     _, p_cfl = wilcoxon(cfl_arr, c1_arr, alternative='less')
+
+print(f"C2 p-value: {p_c2:.4f}")
+print(f"C2-FL p-value: {p_cfl:.4f}")
+
+# C2-FL compared against FedAvg (correct federated comparison)
+c3_sorted = []
+for seed in [42, 123, 456]:
+    c3_seed = df[
+        (df['method'] == 'fedavg') &
+        (df['seed'] == seed) &
+        (df['round'] == 49)
+    ].sort_values('client_id')['masking_gap'].values
+    min_len = min(len(cfl_arr)//3, len(c3_seed))
+    c3_sorted.extend(c3_seed[:min_len])
+c3_arr = np.array(c3_sorted)
+
+_, p_cfl_vs_fedavg = wilcoxon(
+    cfl_arr, c3_arr, alternative='less'
+)
+print(f"C2-FL vs FedAvg p-value: {p_cfl_vs_fedavg:.4f}")
 
 def fmt_p(p):
     if np.isnan(p):
@@ -353,14 +380,19 @@ if plot_data:
             ax.hlines(arr.mean(), xi - 0.35, xi + 0.35,
                       colors='black', linewidths=2.5, linestyles='-')
 
-    # FIX 1: annotation box with pooled p-values and n=60
+    # annotation box with pooled p-values and n=60
+    # C2-FL is compared against FedAvg (C3), not C1, since C2-FL is itself
+    # a federated method and belongs against the standard federated baseline
     n_pairs = len(c1_arr)
-    annot_text = (f"C2 vs C1:    {fmt_p(p_c2)} (n={n_pairs})\n"
-                  f"C2-FL vs C1: {fmt_p(p_cfl)} (n={n_pairs})\n"
+    annot_text = (f"C2 vs C1:        {fmt_p(p_c2)} (n={n_pairs})\n"
+                  f"C2-FL vs FedAvg: {fmt_p(p_cfl_vs_fedavg)} (n={n_pairs})\n"
                   f"* p<0.05, pooled across 3 seeds")
     ax.text(0.98, 0.97, annot_text, transform=ax.transAxes,
             ha='right', va='top', fontsize=9.5,
             bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.9))
+    ax.text(0.98, 0.78, "C2-FL compared to FedAvg baseline (federated comparison)",
+            transform=ax.transAxes, ha='right', va='top', fontsize=7.5,
+            style='italic', color='#555555')
 
     ax.axhline(0.10, color='orange', linestyle='--', linewidth=1.5, alpha=0.7,
                label='Mild/Moderate (0.10)')
@@ -375,7 +407,8 @@ if plot_data:
         fontsize=14, fontweight='bold', pad=15)
     plt.tight_layout(pad=2.0)
     stat4 = (f'C1={c1_arr.mean():.3f} | C2={c2_arr.mean():.3f} | '
-             f'C2-FL={cfl_arr.mean():.3f} | {fmt_p(p_c2)} | {fmt_p(p_cfl)}')
+             f'C2-FL={cfl_arr.mean():.3f} | C2 vs C1 {fmt_p(p_c2)} | '
+             f'C2-FL vs FedAvg {fmt_p(p_cfl_vs_fedavg)}')
     savefig(os.path.join(figures_dir, 'fig4_fix_proof.png'), stat4)
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -511,7 +544,7 @@ if len(present_label_cols) >= 2:
                 annot_kws={'size': 10}, linewidths=0.5,
                 ax=ax, cbar_kws={'label': 'Pearson r'})
     ax.set_title(
-        "Label Correlation Matrix -- 7 Wellness Dimensions\n"
+        "Label Correlation Matrix: 7 Wellness Dimensions\n"
         "Low off-diagonal correlation confirms dimensional independence",
         fontsize=14, fontweight='bold', pad=15)
     plt.tight_layout(pad=2.0)
