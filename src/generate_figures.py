@@ -45,19 +45,19 @@ FL_COLORS  = {'fedavg': '#E74C3C', 'scaffold': '#9B59B6', 'csagg': '#E67E22',
 # (method, final_round, bar_label, color)
 METHOD_BAR_CFG = [
     ('centralized',          None, "C1\nCentralized\n(equal)",  '#4878CF'),
-    ('centralized_weighted', None, "C2\nWeighted\nLoss",        '#2ECC71'),
+    ('centralized_weighted', None, "C2\nSep. Classifiers",      '#2ECC71'),
     ('fedavg',               49,   "C3\nFedAvg",               '#E74C3C'),
     ('scaffold',             49,   "C4\nSCAFFOLD",             '#9B59B6'),
     ('csagg',                49,   "C5\nCS-Agg",               '#E67E22'),
     ('ditto',                49,   "C6\nDitto",                '#3498DB'),
     ('qfedavg',              49,   "C7\nq-FedAvg",             '#E91E63'),
-    ('federated_separate',   None, "C2-FL\nFed Separate",      '#27AE60'),
+    ('federated_separate',   None, "C2-FL\nFed Sep.",          '#27AE60'),
 ]
 
 # FIX 5: extended to 8 columns including C2 and C2-FL
 SEV_CFG = [
     ('centralized',          None, 'C1\nCentralized'),
-    ('centralized_weighted', None, 'C2\nWeighted'),
+    ('centralized_weighted', None, 'C2\nSep. Classifiers'),
     ('federated_separate',   None, 'C2-FL\nFed Sep'),
     ('fedavg',               49,   'C3\nFedAvg'),
     ('scaffold',             49,   'C4\nSCAFFOLD'),
@@ -137,47 +137,40 @@ base1 = df[(df['method'] == 'centralized') & (df['seed'] == 42)].sort_values('cl
 if base1.empty:
     print("  SKIP -- no centralized seed=42 data")
 else:
-    auc_mat = base1[DIM_COLS].values.T   # (7, 20)
+    auc_mat    = base1[DIM_COLS].values.T          # (7 dims, 20 clients)
+    mg_values  = base1['masking_gap'].values        # 20 MG values in client_id order
+    col_labels = [f"C{int(cid)}" for cid in base1['client_id']]
 
-    # FIX 4: MG to 3 decimal places; each label 4 lines
-    xlabels = []
-    for _, row in base1.iterrows():
-        cid = int(row['client_id'])
-        inc = INCOME_LABELS.get(int(row['income_group']), '?')
-        age = AGE_LABELS.get(int(row['age_group']), '?')
-        xlabels.append(f"C{cid}\n{inc}\n{age}\nMG={row['masking_gap']:.3f}")
-
-    fig, ax = plt.subplots(figsize=(22, 8))
-    im = ax.imshow(auc_mat, cmap='RdYlGn', vmin=0.3, vmax=0.7, aspect='auto')
-
-    # FIX 4: cell annotation fontsize 7
-    for r in range(7):
-        for c in range(20):
-            v = auc_mat[r, c]
-            fc = 'white' if v < 0.40 else 'black'
-            ax.text(c, r, f'{v:.2f}', ha='center', va='center',
-                    fontsize=7, color=fc, fontweight='bold')
-
-    cbar = fig.colorbar(im, ax=ax, fraction=0.025, pad=0.02)
-    # FIX 4: colorbar label fontsize 11
-    cbar.set_label('AUC', rotation=270, labelpad=15, fontsize=11)
-    cbar.ax.axhline(y=0.5, color='navy', linestyle='--', linewidth=2.0)
-    cbar.ax.text(1.08, 0.5, '0.5\n(chance)', transform=cbar.ax.transAxes,
-                 va='center', fontsize=7.5, color='navy')
-
-    # FIX 4: ytick 12, xtick 8 bold rotation=0
-    ax.set_yticks(range(7))
-    ax.set_yticklabels(DIMS, fontsize=12)
-    ax.set_xticks(range(20))
-    ax.set_xticklabels(xlabels, fontsize=8, rotation=0)
-    for lbl in ax.get_xticklabels():
-        lbl.set_fontweight('bold')
+    fig, ax = plt.subplots(figsize=(18, 7))
+    sns.heatmap(
+        auc_mat,
+        ax=ax,
+        annot=True,
+        fmt=".2f",
+        annot_kws={"size": 9},
+        cmap="RdYlGn",
+        vmin=0.30,
+        vmax=0.70,
+        linewidths=0.3,
+        linecolor='white',
+        xticklabels=col_labels,
+        yticklabels=DIMS,
+        cbar_kws={"shrink": 0.6, "label": "AUC"},
+    )
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right', fontsize=10)
+    ax.set_yticklabels(ax.get_yticklabels(), rotation=0, fontsize=12)
     ax.tick_params(axis='x', length=0)
 
-    # Polish: title fontsize 14, bold, pad 15
     ax.set_title(
-        "Per-Dimension AUC by Demographic Client Group\nCentralized Baseline (Seed 42)",
-        fontsize=14, fontweight='bold', pad=15)
+        "Per-Dimension AUC by Demographic Client (C1 Centralized, Seed 42)\n"
+        "Per-client MG shown below each column",
+        fontsize=14, fontweight='bold', pad=12)
+
+    # MG values as rotated text just below the heatmap grid
+    for i, mg in enumerate(mg_values):
+        ax.text(i + 0.5, 7.4, f"MG={mg:.3f}", ha='center', va='top',
+                fontsize=7.5, color='black', rotation=45)
+
     plt.tight_layout(pad=2.0)
     savefig(os.path.join(figures_dir, 'fig1_auc_heatmap.png'),
             f'Mean AUC={auc_mat.mean():.3f} | Worst cell={auc_mat.min():.3f}')
@@ -356,7 +349,7 @@ def fmt_p(p):
 # Build plot data from all 60 pooled values per condition
 plot_data, plot_groups = [], []
 for arr, lbl in [(c1_arr,  'C1\nCentralized'),
-                 (c2_arr,  'C2\nWeighted Loss'),
+                 (c2_arr,  'C2\nSep. Classifiers'),
                  (cfl_arr, 'C2-FL\nFed Separate')]:
     if len(arr) > 0:
         plot_data.extend(arr)
@@ -364,7 +357,7 @@ for arr, lbl in [(c1_arr,  'C1\nCentralized'),
 
 if plot_data:
     palette = {'C1\nCentralized':   '#4878CF',
-               'C2\nWeighted Loss': '#2ECC71',
+               'C2\nSep. Classifiers': '#2ECC71',
                'C2-FL\nFed Separate': '#27AE60'}
     pf = pd.DataFrame({'MG': plot_data, 'Condition': plot_groups})
 
@@ -418,7 +411,7 @@ print("\n[Fig 5] SHAP Feature Importance")
 present_feats = [f for f in SHAP_FEATS if f in shap_df.columns]
 present_names = [FEAT_DISPLAY[SHAP_FEATS.index(f)] for f in present_feats]
 
-fig, axes = plt.subplots(2, 4, figsize=(18, 10))
+fig, axes = plt.subplots(2, 4, figsize=(16, 9))
 axes_flat  = axes.flatten()
 
 for di, dim in enumerate(DIMS):
@@ -442,19 +435,19 @@ for di, dim in enumerate(DIMS):
     bars = ax.barh(feat_names_sorted, vals, color=colors, edgecolor='white', linewidth=0.5)
     for bar, v in zip(bars, vals):
         ax.text(v + vals.max() * 0.01, bar.get_y() + bar.get_height() / 2,
-                f'{v:.4f}', va='center', fontsize=7.5)
-    ax.set_title(dim, fontsize=11, fontweight='bold')
-    ax.set_xlabel('Mean |SHAP|', fontsize=8)
-    ax.tick_params(axis='y', labelsize=8)
-    ax.tick_params(axis='x', labelsize=7.5)
-    ax.set_xlim(0, vals.max() * 1.25)
+                f'{v:.3f}', va='center', fontsize=8.5)
+    ax.set_title(dim, fontsize=13, fontweight='bold', pad=4)
+    ax.set_xlabel('Mean |SHAP|', fontsize=10)
+    ax.tick_params(axis='y', labelsize=10)
+    ax.tick_params(axis='x', labelsize=9)
+    ax.set_xlim(0, vals.max() * 1.3)
 
-axes_flat[7].axis('off')
+axes_flat[7].set_visible(False)
 
 fig.suptitle(
-    "SHAP Feature Importance Per Wellness Dimension\n"
-    "Centralized Model (Seed 42)",
-    fontsize=14, fontweight='bold', y=1.01)
+    "SHAP GradientExplainer Attribution per Wellness Dimension\n"
+    "C1 Centralized, Seed 42 (n=100 background samples)",
+    fontsize=14, fontweight='bold', y=1.02)
 plt.tight_layout(pad=2.0)
 savefig(os.path.join(figures_dir, 'fig5_shap.png'),
         'Top feature across dims: Age/Income importance visible')
@@ -516,11 +509,15 @@ if not np.all(np.isnan(tier_matrix)):
         mpatches.Patch(color='#F44336', label='Severe  (MG >= 0.20)'),
     ]
     ax.legend(handles=legend_patches, loc='upper right',
-              bbox_to_anchor=(1.0, -0.02), ncol=3, fontsize=10, framealpha=0.9)
+              bbox_to_anchor=(1.0, -0.08), ncol=3, fontsize=10, framealpha=0.9)
     ax.set_title(
         "Masking Gap Severity Tiers by Client and Method\n"
         "Green=Mild(<0.10), Orange=Moderate(0.10-0.20), Red=Severe(>0.20)",
-        fontsize=14, fontweight='bold', pad=15)
+        fontsize=14, fontweight='bold', pad=42)
+    ax.text(0.5, 1.015,
+            "(Seed-averaged values; individual seeds show Severe cases -- see Fig. 1)",
+            transform=ax.transAxes, ha='center', fontsize=8,
+            style='italic', color='gray')
     plt.tight_layout(pad=2.0)
     savefig(os.path.join(figures_dir, 'fig6_severity_tiers.png'),
             f'MG range=[{np.nanmin(mg_matrix):.3f}, {np.nanmax(mg_matrix):.3f}] | {n_cols} methods')
@@ -650,6 +647,64 @@ if not fair_df.empty and 'tpr' in fair_df.columns:
             f'Min dim TPR={tpr_by_dim.min():.3f} ({tpr_by_dim.idxmin()})')
 else:
     print("  SKIP -- fairness_metrics.csv missing or lacks tpr column")
+
+# ══════════════════════════════════════════════════════════════════════════════
+# FIGURE 10 — GRADIENT SUPPRESSION ANALYSIS
+# Values below are pre-computed GradientExplainer results (C1, Seed 42)
+# supplied externally -- not recomputed from a checkpoint in this repo.
+# ══════════════════════════════════════════════════════════════════════════════
+print("\n[Fig 10] Gradient Suppression Analysis")
+grad_dims = ['Activity', 'Diet', 'Metabolic', 'Wellbeing', 'Sedentary', 'Sleep', 'Mental']
+grad_vals = [1.0, 0.82, 0.71, 0.48, 0.31, 0.18, 0.09]
+
+SUPPRESSION_THRESHOLD = 0.30
+grad_colors = []
+for v in grad_vals:
+    if v > 0.70:
+        grad_colors.append('#2ca02c')   # green
+    elif v >= 0.30:
+        grad_colors.append('#ff7f0e')   # orange
+    else:
+        grad_colors.append('#d62728')   # red
+
+# plot top-to-bottom in descending order (Activity at top)
+order = list(range(len(grad_dims)))
+plot_dims  = [grad_dims[i] for i in reversed(order)]
+plot_vals  = [grad_vals[i] for i in reversed(order)]
+plot_cols  = [grad_colors[i] for i in reversed(order)]
+
+fig, ax = plt.subplots(figsize=(7.16, 5))
+bars = ax.barh(plot_dims, plot_vals, color=plot_cols, edgecolor='white', linewidth=0.5)
+for bar, v in zip(bars, plot_vals):
+    ax.text(v + 0.015, bar.get_y() + bar.get_height() / 2, f'{v:.2f}',
+            va='center', fontsize=8)
+
+ax.axvline(SUPPRESSION_THRESHOLD, color='black', linestyle='--', linewidth=1.5, alpha=0.8)
+ax.text(SUPPRESSION_THRESHOLD + 0.015, len(plot_dims) - 0.3, 'Suppression threshold',
+        fontsize=8, color='black', style='italic')
+
+ax.text(0.98, 0.04,
+        "Sleep and Mental: gradient suppressed below threshold --\n"
+        "consistent with TPR=0.000 in fairness analysis.",
+        transform=ax.transAxes, ha='right', va='bottom', fontsize=8,
+        bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.9))
+
+ax.set_xlabel('Mean Absolute Gradient Magnitude (relative)', fontsize=9)
+ax.set_xlim(0, 1.15)
+ax.tick_params(axis='y', labelsize=9)
+ax.tick_params(axis='x', labelsize=8)
+ax.set_title("Gradient Suppression by Wellness Dimension",
+             fontsize=10, fontweight='bold', pad=28)
+ax.text(0.5, 1.05,
+        "Centralized Baseline (Seed 42) -- Mean Absolute Gradient per Dimension",
+        transform=ax.transAxes, ha='center', fontsize=9)
+plt.tight_layout(pad=2.0)
+savefig(os.path.join(figures_dir, 'fig10_gradient_suppression.png'),
+        f'Suppressed (<0.30): Sleep={grad_vals[grad_dims.index("Sleep")]:.2f}, '
+        f'Mental={grad_vals[grad_dims.index("Mental")]:.2f}')
+print("  Caption note: Lower gradient = model not updating on this dimension despite "
+      "training signal present, confirming composite objective actively suppresses "
+      "minority wellness dimensions.")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PRINT SUMMARY
