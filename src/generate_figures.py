@@ -36,11 +36,11 @@ SHAP_FEATS    = ['shap_RIDAGEYR', 'shap_RIAGENDR', 'shap_INDFMPIR',
                  'shap_RIDRETH3', 'shap_avg_sys', 'shap_avg_dia']
 FEAT_DISPLAY  = ['Age', 'Gender', 'Income\nRatio', 'Ethnicity', 'Systolic\nBP', 'Diastolic\nBP']
 
-FL_METHODS = ['fedavg', 'scaffold', 'csagg', 'ditto', 'qfedavg']
+FL_METHODS = ['fedavg', 'scaffold', 'csagg', 'ditto', 'qfedavg', 'seqlocal_fedavg']
 FL_LABELS  = {'fedavg': 'FedAvg', 'scaffold': 'SCAFFOLD', 'csagg': 'CS-Agg',
-              'ditto': 'Ditto', 'qfedavg': 'q-FedAvg'}
+              'ditto': 'Ditto', 'qfedavg': 'q-FedAvg', 'seqlocal_fedavg': 'Seq. Local'}
 FL_COLORS  = {'fedavg': '#E74C3C', 'scaffold': '#9B59B6', 'csagg': '#E67E22',
-              'ditto': '#3498DB', 'qfedavg': '#E91E63'}
+              'ditto': '#3498DB', 'qfedavg': '#E91E63', 'seqlocal_fedavg': '#F39C12'}
 
 # (method, final_round, bar_label, color)
 METHOD_BAR_CFG = [
@@ -51,6 +51,7 @@ METHOD_BAR_CFG = [
     ('csagg',                49,   "C5\nCS-Agg",               '#E67E22'),
     ('ditto',                49,   "C6\nDitto",                '#3498DB'),
     ('qfedavg',              49,   "C7\nq-FedAvg",             '#E91E63'),
+    ('seqlocal_fedavg',      49,   "C8\nSeq. Local",           '#F39C12'),
     ('federated_separate',   None, "C2-FL\nFed Sep.",          '#27AE60'),
 ]
 
@@ -64,6 +65,7 @@ SEV_CFG = [
     ('csagg',                49,   'C5\nCS-Agg'),
     ('ditto',                49,   'C6\nDitto'),
     ('qfedavg',              49,   'C7\nq-FedAvg'),
+    ('seqlocal_fedavg',      49,   'C8\nSeq. Local'),
 ]
 
 BOOT_CFG = [
@@ -74,6 +76,7 @@ BOOT_CFG = [
     ('csagg',                49,   'C5',    '#E67E22'),
     ('ditto',                49,   'C6',    '#3498DB'),
     ('qfedavg',              49,   'C7',    '#E91E63'),
+    ('seqlocal_fedavg',      49,   'C8',    '#F39C12'),
     ('federated_separate',   None, 'C2-FL', '#2ECC71'),
 ]
 
@@ -282,7 +285,7 @@ ax.set_ylim(y_lo, y_hi)
 ax.legend(fontsize=10, loc='upper right', framealpha=0.9)
 ax.set_title(
     "Masking Gap Convergence Across FL Training\n"
-    "All 5 Methods vs Centralized Baseline",
+    "All 6 Methods vs Centralized Baseline",
     fontsize=14, fontweight='bold', pad=15)
 plt.tight_layout(pad=2.0)
 savefig(os.path.join(figures_dir, 'fig3_convergence.png'),
