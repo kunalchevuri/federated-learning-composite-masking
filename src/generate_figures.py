@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.colors import ListedColormap, BoundaryNorm
 import seaborn as sns
-from scipy.stats import wilcoxon
+from scipy.stats import wilcoxon, pearsonr, spearmanr
 import os
 import warnings
 warnings.filterwarnings('ignore')
@@ -238,21 +238,22 @@ base_mg = df[df['method'] == 'centralized']['masking_gap'].mean()
 
 fig, ax = plt.subplots(figsize=(12, 6))
 all_upper = []
+all_lower = []
 for method in FL_METHODS:
     sub = df[df['method'] == method]
     if sub.empty:
         print(f"  SKIP {method}")
         continue
-    grp = sub.groupby('round')['masking_gap']
-    mu  = grp.mean()
-    sd  = grp.std()
+    # seed-level SD: average per seed first (n=20 clients), then std across seeds (n=3)
+    seed_means = sub.groupby(['round', 'seed'])['masking_gap'].mean().unstack('seed')
+    mu = seed_means.mean(axis=1)
+    sd = seed_means.std(axis=1)
     rounds   = mu.index.values
     final_mg = mu.iloc[-1]
     all_upper.append((mu + sd).max())
+    all_lower.append((mu - sd).min())
     lbl = f"{FL_LABELS[method]} (final MG={final_mg:.3f})"
-    # FIX 2: linewidth 2.5
     ax.plot(rounds, mu.values, color=FL_COLORS[method], linewidth=2.5, label=lbl)
-    # FIX 2: fill_between alpha 0.07
     ax.fill_between(rounds, mu - sd, mu + sd, alpha=0.07, color=FL_COLORS[method])
 
 # FIX 2: centralized baseline black dashed lw=2.5 alpha=0.9
@@ -263,13 +264,21 @@ ax.axhline(0.10, color='orange', linestyle='--', linewidth=1.2, alpha=0.8,
 ax.axhline(0.20, color='red',    linestyle='--', linewidth=1.2, alpha=0.8,
            label='Moderate/Severe threshold (0.20)')
 ax.axvline(10, color='#E67E22', linestyle=':', linewidth=2.0, alpha=0.7)
-y_top = max(all_upper) if all_upper else 0.25
-ax.text(10.5, y_top, 'CS-Agg\nwarmup', fontsize=8, color='#E67E22', va='top')
+
+# compute zoomed ylim: 10% padding around actual data range (method bands + baseline)
+data_min = min(all_lower + [base_mg]) if all_lower else 0.08
+data_max = max(all_upper + [base_mg]) if all_upper else 0.20
+data_range = data_max - data_min
+pad = data_range * 0.10
+y_lo, y_hi = data_min - pad, data_max + pad
+print(f"  Fig3 band data range: [{data_min:.4f}, {data_max:.4f}]  ->  ylim=[{y_lo:.4f}, {y_hi:.4f}]")
+
+ax.text(10.5, y_hi - 0.002, 'CS-Agg\nwarmup', fontsize=8, color='#E67E22', va='top')
 
 ax.set_xlabel('Communication Round', fontsize=12)
 ax.set_ylabel('Mean Masking Gap', fontsize=12)
 ax.set_xlim(0, 49)
-# FIX 2: legend fontsize 10
+ax.set_ylim(y_lo, y_hi)
 ax.legend(fontsize=10, loc='upper right', framealpha=0.9)
 ax.set_title(
     "Masking Gap Convergence Across FL Training\n"
@@ -402,7 +411,7 @@ if plot_data:
     stat4 = (f'C1={c1_arr.mean():.3f} | C2={c2_arr.mean():.3f} | '
              f'C2-FL={cfl_arr.mean():.3f} | C2 vs C1 {fmt_p(p_c2)} | '
              f'C2-FL vs FedAvg {fmt_p(p_cfl_vs_fedavg)}')
-    savefig(os.path.join(figures_dir, 'fig4_fix_proof.png'), stat4)
+    savefig(os.path.join(figures_dir, 'fig4_fix_direction.png'), stat4)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # FIGURE 5 — SHAP SUMMARY (7 subplots, unchanged logic)
@@ -411,7 +420,10 @@ print("\n[Fig 5] SHAP Feature Importance")
 present_feats = [f for f in SHAP_FEATS if f in shap_df.columns]
 present_names = [FEAT_DISPLAY[SHAP_FEATS.index(f)] for f in present_feats]
 
-fig, axes = plt.subplots(2, 4, figsize=(16, 9))
+print("  Fig5 figsize: before=(16, 9)  ->  after=(12, 7)")
+print("  Fixed font sizes (independent of figsize): subplot titles=13pt, "
+      "xlabel=10pt, y-ticks=10pt, x-ticks=9pt, bar annotations=8.5pt")
+fig, axes = plt.subplots(2, 4, figsize=(12, 7))
 axes_flat  = axes.flatten()
 
 for di, dim in enumerate(DIMS):
@@ -448,7 +460,7 @@ fig.suptitle(
     "SHAP GradientExplainer Attribution per Wellness Dimension\n"
     "C1 Centralized, Seed 42 (n=100 background samples)",
     fontsize=14, fontweight='bold', y=1.02)
-plt.tight_layout(pad=2.0)
+plt.tight_layout(pad=1.5)
 savefig(os.path.join(figures_dir, 'fig5_shap.png'),
         'Top feature across dims: Age/Income importance visible')
 
@@ -588,7 +600,7 @@ if boot_results:
         "All Experiment Conditions (10,000 resamples)",
         fontsize=14, fontweight='bold', pad=15)
     plt.tight_layout(pad=2.0)
-    savefig(os.path.join(figures_dir, 'fig8_bootstrap_ci.png'),
+    savefig(os.path.join(figures_dir, 'fig2_bootstrap_ci.png'),
             f'C1 CI=[{boot_results[0][2]:.3f}, {boot_results[0][3]:.3f}]')
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -705,6 +717,76 @@ savefig(os.path.join(figures_dir, 'fig10_gradient_suppression.png'),
 print("  Caption note: Lower gradient = model not updating on this dimension despite "
       "training signal present, confirming composite objective actively suppresses "
       "minority wellness dimensions.")
+
+# ══════════════════════════════════════════════════════════════════════════════
+# FIGURE — FAIRNESS PARADOX SCATTER  (q-FedAvg weighting signal vs MG)
+# ══════════════════════════════════════════════════════════════════════════════
+print("\n[Fig] Fairness Paradox Scatter")
+
+q_scatter = df[(df['method'] == 'qfedavg') & (df['round'] == 49)].copy()
+if not q_scatter.empty:
+    x = q_scatter['composite_auc'].values
+    y = q_scatter['masking_gap'].values
+    r_p, p_p = pearsonr(x, y)
+    r_s, p_s = spearmanr(x, y)
+    print(f"  n={len(x)} | x=[{x.min():.3f}, {x.max():.3f}] | y=[{y.min():.3f}, {y.max():.3f}]")
+    print(f"  Pearson r={r_p:.3f} p={p_p:.4f} | Spearman r={r_s:.3f} p={p_s:.4f}")
+
+    income_colors = {0: '#D62728', 1: '#FF7F0E', 2: '#BCBD22', 3: '#1F77B4', 4: '#9467BD'}
+    income_labels_scatter = {
+        0: '<100% poverty', 1: '100-199%', 2: '200-299%', 3: '300-399%', 4: '400%+'
+    }
+
+    fig, ax = plt.subplots(figsize=(9, 7))
+    for inc_grp in sorted(q_scatter['income_group'].unique()):
+        mask = q_scatter['income_group'] == inc_grp
+        ax.scatter(
+            q_scatter.loc[mask, 'composite_auc'],
+            q_scatter.loc[mask, 'masking_gap'],
+            color=income_colors.get(int(inc_grp), 'gray'),
+            label=income_labels_scatter.get(int(inc_grp), str(int(inc_grp))),
+            s=60, alpha=0.80, edgecolors='white', linewidths=0.5, zorder=3
+        )
+
+    # trend line (in legend)
+    z = np.polyfit(x, y, 1)
+    x_line = np.linspace(x.min(), x.max(), 200)
+    ax.plot(x_line, np.polyval(z, x_line), color='#555555', linewidth=1.8,
+            linestyle='--', alpha=0.7, label=f'Trend (r={r_p:.3f})', zorder=2)
+
+    # threshold lines — annotated directly; kept out of legend to reduce legend size
+    ax.axhline(0.10, color='#FF9800', linestyle=':', linewidth=1.8, alpha=0.85, zorder=1)
+    ax.axhline(0.20, color='#F44336', linestyle=':', linewidth=1.8, alpha=0.85, zorder=1)
+    ax.text(0.995, 0.10, ' Mild/Mod. (0.10)', va='center', ha='right',
+            transform=ax.get_yaxis_transform(), fontsize=8, color='#FF9800', fontweight='bold')
+    ax.text(0.995, 0.20, ' Mod/Sev. (0.20)', va='center', ha='right',
+            transform=ax.get_yaxis_transform(), fontsize=8, color='#F44336', fontweight='bold')
+
+    # stats annotation — upper-left (data-sparse corner for this dataset)
+    stats_text = (f"Pearson r = {r_p:.3f}\n"
+                  f"Spearman r = {r_s:.3f}\n"
+                  f"p = {p_p:.3f}")
+    ax.text(0.03, 0.97, stats_text, transform=ax.transAxes,
+            ha='left', va='top', fontsize=9.5,
+            bbox=dict(boxstyle='round', facecolor='white', alpha=0.92, edgecolor='#aaaaaa'))
+
+    ax.set_xlabel('Client Composite AUC (q-FedAvg weighting proxy)\n'
+                  'Lower = higher composite loss = more q-FedAvg weight', fontsize=10)
+    ax.set_ylabel('Client Masking Gap (clinical failure severity)', fontsize=10)
+    ax.set_title(
+        "Fairness Paradox: q-FedAvg Weighting Signal vs. Clinical Masking Severity\n"
+        "q-FedAvg round 49, all seeds pooled (n=60 client-seed pairs)",
+        fontsize=13, fontweight='bold', pad=12)
+
+    # legend placed OUTSIDE the axes — prevents overlap with any data points
+    ax.legend(title='Income Group', loc='upper left', bbox_to_anchor=(1.02, 1.0),
+              borderaxespad=0, fontsize=9, title_fontsize=9.5, framealpha=0.95)
+
+    plt.tight_layout(pad=2.0)
+    savefig(os.path.join(figures_dir, 'fig_fairness_paradox_scatter.png'),
+            f'Pearson r={r_p:.3f} p={p_p:.4f} | Spearman r={r_s:.3f} p={p_s:.4f}')
+else:
+    print("  SKIP -- no qfedavg round=49 data")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PRINT SUMMARY
