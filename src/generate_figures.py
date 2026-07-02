@@ -42,19 +42,6 @@ FL_LABELS  = {'fedavg': 'FedAvg', 'scaffold': 'SCAFFOLD', 'csagg': 'CS-Agg',
 FL_COLORS  = {'fedavg': '#E74C3C', 'scaffold': '#9B59B6', 'csagg': '#E67E22',
               'ditto': '#3498DB', 'qfedavg': '#E91E63', 'seqlocal_fedavg': '#F39C12'}
 
-# (method, final_round, bar_label, color)
-METHOD_BAR_CFG = [
-    ('centralized',          None, "C1\nCentralized\n(equal)",  '#4878CF'),
-    ('centralized_weighted', None, "C2\nSep. Classifiers",      '#2ECC71'),
-    ('fedavg',               49,   "C3\nFedAvg",               '#E74C3C'),
-    ('scaffold',             49,   "C4\nSCAFFOLD",             '#9B59B6'),
-    ('csagg',                49,   "C5\nCS-Agg",               '#E67E22'),
-    ('ditto',                49,   "C6\nDitto",                '#3498DB'),
-    ('qfedavg',              49,   "C7\nq-FedAvg",             '#E91E63'),
-    ('seqlocal_fedavg',      49,   "C8\nSeq. Local",           '#F39C12'),
-    ('federated_separate',   None, "C2-FL\nFed Sep.",          '#27AE60'),
-]
-
 # FIX 5: extended to 8 columns including C2 and C2-FL
 SEV_CFG = [
     ('centralized',          None, 'C1\nCentralized'),
@@ -177,61 +164,6 @@ else:
     plt.tight_layout(pad=2.0)
     savefig(os.path.join(figures_dir, 'fig1_auc_heatmap.png'),
             f'Mean AUC={auc_mat.mean():.3f} | Worst cell={auc_mat.min():.3f}')
-
-# ══════════════════════════════════════════════════════════════════════════════
-# FIGURE 2 — MASKING GAP BAR CHART  [FIX 3: seed-level std error bars]
-# ══════════════════════════════════════════════════════════════════════════════
-print("\n[Fig 2] MG Bar Chart")
-bar_means, bar_stds, bar_labels, bar_colors = [], [], [], []
-for method, fr, label, color in METHOD_BAR_CFG:
-    # FIX 3: centralized-family uses all rounds; FL methods filter round=49
-    if method in ['centralized', 'centralized_weighted', 'federated_separate']:
-        sub = df[df['method'] == method]
-    else:
-        sub = df[(df['method'] == method) & (df['round'] == 49)]
-
-    if len(sub) == 0:
-        print(f"  SKIP {method} -- no data")
-        continue
-
-    # FIX 3: mean per seed first, then std across seeds (not across clients)
-    seed_means = []
-    for seed in [42, 123, 456]:
-        s = sub[sub['seed'] == seed]
-        if len(s) > 0:
-            seed_means.append(s['masking_gap'].mean())
-
-    overall_mean = np.mean(seed_means)
-    seed_std     = np.std(seed_means) if len(seed_means) > 1 else 0.0
-    bar_means.append(overall_mean)
-    bar_stds.append(seed_std)
-    bar_labels.append(label)
-    bar_colors.append(color)
-
-if bar_means:
-    fig, ax = plt.subplots(figsize=(14, 7))
-    x = np.arange(len(bar_means))
-    ax.bar(x, bar_means, color=bar_colors, width=0.6,
-           yerr=bar_stds, capsize=5, error_kw={'linewidth': 1.5, 'ecolor': '#555'})
-    for xi, (m, s) in enumerate(zip(bar_means, bar_stds)):
-        ax.text(xi, m + s + 0.003, f'{m:.3f}', ha='center', va='bottom',
-                fontsize=9, fontweight='bold')
-    ax.axhline(0.10, color='orange', linestyle='--', linewidth=1.8,
-               label='Mild/Moderate (0.10)')
-    ax.axhline(0.20, color='red',    linestyle='--', linewidth=1.8,
-               label='Moderate/Severe (0.20)')
-    ax.set_xticks(x)
-    ax.set_xticklabels(bar_labels, fontsize=9)
-    ax.set_ylabel('Mean Masking Gap', fontsize=12)
-    ax.set_ylim(0, max(bar_means) + max(bar_stds) + 0.025)
-    ax.legend(fontsize=10, framealpha=0.9)
-    ax.set_title(
-        "Mean Masking Gap by Experiment Condition\n"
-        "Error bars = std across seeds (n=3)",
-        fontsize=14, fontweight='bold', pad=15)
-    plt.tight_layout(pad=2.0)
-    savefig(os.path.join(figures_dir, 'fig2_mg_by_method.png'),
-            f'C1={bar_means[0]:.3f} | seed-std range=[{min(bar_stds):.4f}, {max(bar_stds):.4f}]')
 
 # ══════════════════════════════════════════════════════════════════════════════
 # FIGURE 3 — CONVERGENCE CURVES  [FIX 2: alpha 0.07, lw 2.5, baseline style]
