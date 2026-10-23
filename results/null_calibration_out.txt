@@ -1,0 +1,172 @@
+Loaded: bibm_results (540, 12) | final-round rows (540, 12)
+  rebuilt test folds match n_test in the CSV for all seeds
+  clients (of 20) with an evaluable AUC:
+ seed  Sleep  Activity  Sedentary  Mental  Metabolic  Wellbeing  Diet
+   42     20        20         20      14         20         19    20
+  123     20        20         20      11         20         19    20
+  456     20        20         20      12         20         17    20
+  placeholder cells: 252 of 3780; legacy low-count centralized cells: 0
+
+[1] Null AUC draws from exact test-fold counts
+
+[2] Client-level MG vs null
+  Evaluable cells only (primary):
+              label  mg_obs  mg_null  mg_excess  ci_lo  ci_hi  wilcoxon_p_holm  frac_ge_null_p95  frac_ge_null_p99  mean_null_pctile
+     C1 Centralized   0.107    0.103      0.004 -0.007  0.015            1.000             0.067             0.017             0.519
+C2 Sep. classifiers   0.108    0.103      0.005 -0.006  0.017            1.000             0.067             0.017             0.529
+C2-FL Fed. separate   0.106    0.103      0.002 -0.011  0.016            1.000             0.117             0.017             0.489
+          C3 FedAvg   0.116    0.103      0.012  0.003  0.022            0.352             0.067             0.000             0.596
+        C4 SCAFFOLD   0.109    0.103      0.006 -0.004  0.015            1.000             0.100             0.000             0.526
+          C5 CS-Agg   0.117    0.103      0.013  0.004  0.023            0.266             0.117             0.017             0.600
+           C6 Ditto   0.113    0.103      0.010  0.000  0.020            0.632             0.083             0.000             0.565
+        C7 q-FedAvg   0.113    0.103      0.009 -0.003  0.022            1.000             0.117             0.033             0.556
+        C8 Per-dim.   0.111    0.103      0.008  0.000  0.016            0.628             0.133             0.050             0.526
+
+  As reported in the submission (0.5 placeholders included):
+              label  mg_obs  mg_null  mg_excess  ci_lo  ci_hi  wilcoxon_p_holm  frac_ge_null_p95  frac_ge_null_p99  mean_null_pctile
+     C1 Centralized   0.105    0.103      0.002 -0.010  0.014            1.000             0.050             0.017             0.514
+C2 Sep. classifiers   0.106    0.103      0.003 -0.008  0.015            1.000             0.067             0.017             0.523
+C2-FL Fed. separate   0.105    0.103      0.001 -0.011  0.015            1.000             0.100             0.017             0.479
+          C3 FedAvg   0.114    0.103      0.011  0.001  0.021            0.718             0.067             0.000             0.585
+        C4 SCAFFOLD   0.109    0.103      0.006 -0.005  0.016            1.000             0.100             0.000             0.523
+          C5 CS-Agg   0.115    0.103      0.012  0.002  0.022            0.436             0.100             0.017             0.589
+           C6 Ditto   0.111    0.103      0.008 -0.002  0.019            1.000             0.083             0.000             0.553
+        C7 q-FedAvg   0.112    0.103      0.009 -0.003  0.022            1.000             0.117             0.017             0.551
+        C8 Per-dim.   0.110    0.103      0.007 -0.001  0.014            1.000             0.133             0.050             0.518
+  (under the null: frac_ge_null_p95 ~ 0.05, frac_ge_null_p99 ~ 0.01, mean_null_pctile ~ 0.50)
+
+  Tier counts (client x seed, evaluable):
+tier                 elevated (>=null p95)  severe (>=null p99)  within noise
+method                                                                       
+C1 Centralized                           3                    1            56
+C2 Sep. classifiers                      3                    1            56
+C2-FL Fed. separate                      6                    1            53
+C3 FedAvg                                4                    0            56
+C4 SCAFFOLD                              6                    0            54
+C5 CS-Agg                                6                    1            53
+C6 Ditto                                 5                    0            55
+C7 q-FedAvg                              5                    2            53
+C8 Per-dim.                              5                    3            52
+
+  Per-seed MG (reported / evaluable) and MG-excess:
+                    mg_reported                 mg_evaluable                 mg_null                 mg_excess                
+seed                        42      123     456          42      123     456     42      123     456       42      123     456
+method                                                                                                                        
+C1 Centralized           0.1057  0.1112  0.0980       0.1069  0.1142  0.0993  0.1054  0.1017  0.1026    0.0014  0.0125 -0.0033
+C2 Sep. classifiers      0.1035  0.1220  0.0939       0.1071  0.1200  0.0968  0.1054  0.1017  0.1026    0.0017  0.0183 -0.0058
+C2-FL Fed. separate      0.1001  0.1018  0.1121       0.1014  0.1029  0.1126  0.1054  0.1017  0.1026   -0.0040  0.0012  0.0100
+C3 FedAvg                0.1226  0.1103  0.1104       0.1237  0.1107  0.1123  0.1054  0.1017  0.1026    0.0183  0.0091  0.0097
+C4 SCAFFOLD              0.1144  0.1100  0.1032       0.1154  0.1085  0.1031  0.1054  0.1017  0.1026    0.0099  0.0068  0.0005
+C5 CS-Agg                0.1264  0.1093  0.1104       0.1278  0.1097  0.1120  0.1054  0.1017  0.1026    0.0224  0.0080  0.0094
+C6 Ditto                 0.1085  0.1119  0.1136       0.1101  0.1136  0.1152  0.1054  0.1017  0.1026    0.0047  0.0119  0.0126
+C7 q-FedAvg              0.1105  0.1163  0.1106       0.1115  0.1161  0.1106  0.1054  0.1017  0.1026    0.0060  0.0144  0.0080
+C8 Per-dim.              0.1154  0.1109  0.1035       0.1153  0.1133  0.1051  0.1054  0.1017  0.1026    0.0099  0.0116  0.0025
+
+[3] Population-level MG vs null
+  null population MG: mean 0.027  95th 0.038
+              label  pop_mg  boot_ci_lo  boot_ci_hi  null_p95  p_value  p_holm worst_dim
+     C1 Centralized  0.0337      0.0223      0.0577    0.0385   0.1381  0.3891 Sedentary
+C2 Sep. classifiers  0.0339      0.0217      0.0847    0.0385   0.1297  0.3891    Mental
+C2-FL Fed. separate  0.0418      0.0208      0.0840    0.0385   0.0238  0.1666    Mental
+          C3 FedAvg  0.0417      0.0179      0.0553    0.0385   0.0243  0.1666     Sleep
+        C4 SCAFFOLD  0.0394      0.0196      0.0621    0.0385   0.0419  0.2055    Mental
+          C5 CS-Agg  0.0428      0.0178      0.0546    0.0385   0.0182  0.1620  Activity
+           C6 Ditto  0.0329      0.0166      0.0536    0.0385   0.1646  0.3891      Diet
+        C7 q-FedAvg  0.0429      0.0127      0.0425    0.0385   0.0180  0.1620     Sleep
+        C8 Per-dim.  0.0395      0.0222      0.0561    0.0385   0.0411  0.2055  Activity
+
+  Client-averaged AUC per dimension (* = 95% CI above 0.5):
+dimension             Sleep Activity Sedentary  Mental Metabolic Wellbeing    Diet
+label                                                                             
+C1 Centralized       0.557*   0.588*    0.554*  0.571*    0.638*    0.610*  0.574*
+C2 Sep. classifiers  0.562*   0.584*    0.548*  0.534     0.628*    0.588*  0.569*
+C2-FL Fed. separate  0.509    0.529*    0.535*  0.489     0.575*    0.545*  0.522*
+C3 FedAvg            0.495    0.518     0.503   0.504     0.568*    0.529*  0.509 
+C4 SCAFFOLD          0.488    0.531*    0.510   0.486     0.539*    0.523   0.500 
+C5 CS-Agg            0.496    0.494     0.511   0.506     0.567*    0.532*  0.509 
+C6 Ditto             0.520    0.533*    0.525   0.517     0.556*    0.556*  0.505 
+C7 q-FedAvg          0.502    0.504     0.512   0.509     0.556*    0.508   0.509 
+C8 Per-dim.          0.494    0.488     0.514   0.516     0.540*    0.558*  0.527*
+
+[4] Paired comparisons (seed-averaged per client, n=20, two-sided, Holm)
+                          comparison  mean_diff  hodges_lehmann  hl_ci_lo  hl_ci_hi  n_clients_lower  n_clients  wilcoxon_p  wilcoxon_p_holm
+C2 Sep. classifiers - C1 Centralized     0.0012          0.0025   -0.0122    0.0177               10         20      0.7562              1.0
+     C2-FL Fed. separate - C3 FedAvg    -0.0099         -0.0101   -0.0266    0.0050               13         20      0.2611              1.0
+             C8 Per-dim. - C3 FedAvg    -0.0043         -0.0035   -0.0145    0.0068               11         20      0.4749              1.0
+             C7 q-FedAvg - C3 FedAvg    -0.0029         -0.0023   -0.0136    0.0087               10         20      0.7285              1.0
+                C6 Ditto - C3 FedAvg    -0.0026         -0.0027   -0.0132    0.0080               12         20      0.6215              1.0
+          C3 FedAvg - C1 Centralized     0.0088          0.0109   -0.0097    0.0282                8         20      0.3683              1.0
+
+  Per-dimension AUC change (95% cluster-bootstrap CI):
+                          comparison dimension  delta_auc  ci_lo  ci_hi  ci_excludes_0
+     C2-FL Fed. separate - C3 FedAvg     Sleep      0.014 -0.005  0.034          False
+     C2-FL Fed. separate - C3 FedAvg  Activity      0.011 -0.003  0.025          False
+     C2-FL Fed. separate - C3 FedAvg Sedentary      0.032  0.011  0.054           True
+     C2-FL Fed. separate - C3 FedAvg    Mental     -0.015 -0.042  0.013          False
+     C2-FL Fed. separate - C3 FedAvg Metabolic      0.007 -0.001  0.015          False
+     C2-FL Fed. separate - C3 FedAvg Wellbeing      0.016  0.002  0.031           True
+     C2-FL Fed. separate - C3 FedAvg      Diet      0.014 -0.000  0.027          False
+C2 Sep. classifiers - C1 Centralized     Sleep      0.005 -0.008  0.017          False
+C2 Sep. classifiers - C1 Centralized  Activity     -0.004 -0.015  0.008          False
+C2 Sep. classifiers - C1 Centralized Sedentary     -0.006 -0.021  0.010          False
+C2 Sep. classifiers - C1 Centralized    Mental     -0.037 -0.070 -0.002           True
+C2 Sep. classifiers - C1 Centralized Metabolic     -0.010 -0.019 -0.002           True
+C2 Sep. classifiers - C1 Centralized Wellbeing     -0.021 -0.035 -0.007           True
+C2 Sep. classifiers - C1 Centralized      Diet     -0.005 -0.019  0.009          False
+             C8 Per-dim. - C3 FedAvg     Sleep     -0.001 -0.013  0.011          False
+             C8 Per-dim. - C3 FedAvg  Activity     -0.030 -0.051 -0.009           True
+             C8 Per-dim. - C3 FedAvg Sedentary      0.011 -0.005  0.028          False
+             C8 Per-dim. - C3 FedAvg    Mental      0.012 -0.007  0.034          False
+             C8 Per-dim. - C3 FedAvg Metabolic     -0.028 -0.047 -0.008           True
+             C8 Per-dim. - C3 FedAvg Wellbeing      0.029  0.011  0.048           True
+             C8 Per-dim. - C3 FedAvg      Diet      0.018 -0.009  0.046          False
+
+  Mixed model MG ~ method + seed + (1|client), reference = FedAvg:
+                                                         Coef. Std.Err.       z  P>|z|  [0.025 0.975]
+C(method, Treatment('fedavg'))[T.centralized]           -0.009    0.008  -1.066  0.286  -0.025  0.007
+C(method, Treatment('fedavg'))[T.centralized_weighted]  -0.008    0.008  -0.924  0.355  -0.024  0.009
+C(method, Treatment('fedavg'))[T.csagg]                  0.001    0.008   0.114  0.909  -0.015  0.017
+C(method, Treatment('fedavg'))[T.ditto]                 -0.003    0.008  -0.315  0.753  -0.019  0.014
+C(method, Treatment('fedavg'))[T.federated_separate]    -0.010    0.008  -1.206  0.228  -0.026  0.006
+C(method, Treatment('fedavg'))[T.qfedavg]               -0.003    0.008  -0.350  0.726  -0.019  0.013
+C(method, Treatment('fedavg'))[T.scaffold]              -0.007    0.008  -0.799  0.424  -0.023  0.010
+C(method, Treatment('fedavg'))[T.seqlocal_fedavg]       -0.004    0.008  -0.528  0.597  -0.020  0.012
+  variance: client 0.00018  residual 0.00203  (client share 0.08)
+
+[5] Identity of the worst dimension, observed vs random-score null
+dimension  prevalence  observed_share  null_share
+    Sleep       0.235           0.220       0.160
+ Activity       0.365           0.133       0.141
+Sedentary       0.361           0.167       0.139
+   Mental       0.082           0.183       0.145
+Metabolic       0.415           0.072       0.134
+Wellbeing       0.238           0.100       0.153
+     Diet       0.500           0.124       0.129
+
+[6] Null MG vs per-client test-set size
+ n_test  null_median  null_p95  null_p99
+     25       0.1844    0.3343    0.4123
+     50       0.1257    0.2360    0.3102
+     75       0.1047    0.1907    0.2388
+    100       0.0889    0.1642    0.2088
+    150       0.0725    0.1351    0.1821
+    200       0.0632    0.1214    0.1571
+    300       0.0514    0.0973    0.1257
+    500       0.0396    0.0755    0.0959
+    750       0.0327    0.0617    0.0787
+   1000       0.0279    0.0539    0.0691
+   1500       0.0226    0.0423    0.0581
+   2000       0.0203    0.0377    0.0529
+   3000       0.0167    0.0315    0.0398
+   5000       0.0126    0.0238    0.0320
+  smallest n_test (grid) with null 95th < 0.10: 300
+  smallest n_test (grid) with null 95th < 0.05: 1500
+  smallest n_test (grid) with null 95th < 0.02: None
+
+[Fig 11] Null calibration
+  -> fig11_null_calibration.png  (50.2 KB)
+
+[Fig 12] Null MG vs test-set size
+  -> fig12_power_curve.png  (62.8 KB)
+
+Done.

@@ -1,0 +1,85 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{cite}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\MG}{\mathrm{MG}}
+\newcommand{\AUC}{\mathrm{AUC}}
+
+\begin{document}
+
+\title{Masking or Noise? Null-Calibrated Auditing of Per-Dimension Failures Behind Composite Wellness Scores in Federated Learning}
+
+\author{\IEEEauthorblockN{Anonymous Authors}}
+
+\maketitle
+
+\begin{abstract}
+Consumer wellness apps combine several health dimensions, such as sleep, activity and mood, into one composite score, and the composite can look fine while one dimension fails. We introduce the Masking Gap to measure this: the average of the per-dimension areas under the receiver operating characteristic curve minus the lowest one. The Masking Gap is never negative, and under federated learning it must be estimated on each client's small test set, so a raw value can be pure noise. We therefore derive its distribution under chance, report how far an observed gap exceeds chance, and set severity tiers from that distribution. We study 20 income-by-age clients built from the 2015--2018 National Health and Nutrition Examination Survey (8,353 adults, seven dimensions) in two stages. In a baseline stage with nine centralized, federated and per-dimension training conditions, the per-client gap (0.106--0.117) was close to its chance level (0.103), and detecting a gap of 0.10 would need about 300 test records per client. A full protocol then ran all nine conditions and FedProx with validation-based model selection, tuned learning rates, ten seeds, class-weighted and focal losses, a leakage-audited 38-column feature set and three client partitions. Two real failures emerged. First, federated outputs at chance in the baseline were caused by unscaled inputs; after standardization, federated averaging trailed centralized training by only 0.008 in area under the curve averaged over dimensions (at most 0.013 on any dimension). Second, in every full-protocol configuration the composite score was worse than each dimension's own output at flagging that dimension's poor cases, by 0.02--0.16 in area under the curve. Near-zero sensitivity for sleep and depression at the default threshold was a threshold artifact (0.51--0.70 at validation-tuned thresholds). We end with practical recommendations for auditing composite health models trained with federated learning.
+\end{abstract}
+
+\begin{IEEEkeywords}
+composite health scores, federated learning, model auditing, multi-task learning, permutation test, wellness applications
+\end{IEEEkeywords}
+
+\input{sec_front}
+\input{sec_results_a}
+\input{sec_results_b}
+\input{sec_discussion}
+\input{sec_conclusion}
+
+
+\begin{thebibliography}{99}
+\bibitem{doherty2025} C.~Doherty et al., ``Readiness, recovery, and strain: an evaluation of composite health scores in consumer wearables,'' \emph{Transl.\ Exerc.\ Biomed.}, vol.~2, no.~2, pp.~128--144, 2025.
+\bibitem{whoop2024} Whoop, ``Whoop 101: Recovery,'' 2024. [Online]. Available: \url{https://developer.whoop.com/docs/whoop-101/}. Accessed: Sep.~26, 2026.
+\bibitem{garmin2024} Garmin, ``Body Battery energy monitor,'' 2024. [Online]. Available: \url{https://www.garmin.com/en-US/garmin-technology/health-science/body-battery/}. Accessed: Sep.~26, 2026.
+\bibitem{oura2024} Oura, ``Readiness contributors,'' Oura Member Care, 2024. [Online]. Available: \url{https://support.ouraring.com/hc/en-us/articles/360057791533-Readiness-Contributors}. Accessed: Sep.~26, 2026.
+\bibitem{nhanes2015} Centers for Disease Control and Prevention, ``National Health and Nutrition Examination Survey data, 2015--2018,'' U.S.\ Dept.\ of Health and Human Services. [Online]. Available: \url{https://www.cdc.gov/nchs/nhanes}. Accessed: Sep.~26, 2026.
+\bibitem{rieke2020} N.~Rieke et al., ``The future of digital health with federated learning,'' \emph{npj Digit.\ Med.}, vol.~3, p.~119, 2020.
+\bibitem{mcmahan2017} B.~McMahan, E.~Moore, D.~Ramage, S.~Hampson, and B.~A.~y~Arcas, ``Communication-efficient learning of deep networks from decentralized data,'' in \emph{Proc.\ AISTATS}, 2017, pp.~1273--1282.
+\bibitem{grataloup2024} A.~Grataloup and M.~Kurpicz-Briki, ``A systematic survey on the application of federated learning in mental state detection and human activity recognition,'' \emph{Front.\ Digit.\ Health}, vol.~6, p.~1495999, 2024.
+\bibitem{li2020fedprox} T.~Li et al., ``Federated optimization in heterogeneous networks,'' in \emph{Proc.\ MLSys}, 2020, pp.~429--450.
+\bibitem{karimireddy2020} S.~P.~Karimireddy et al., ``SCAFFOLD: Stochastic controlled averaging for federated learning,'' in \emph{Proc.\ ICML}, 2020, pp.~5132--5143.
+\bibitem{li2021ditto} T.~Li, S.~Hu, A.~Beirami, and V.~Smith, ``Ditto: Fair and robust federated learning through personalization,'' in \emph{Proc.\ ICML}, 2021, pp.~6357--6368.
+\bibitem{fallah2020} A.~Fallah, A.~Mokhtari, and A.~Ozdaglar, ``Personalized federated learning with theoretical guarantees: A model-agnostic meta-learning approach,'' in \emph{Proc.\ NeurIPS}, 2020, pp.~3557--3568.
+\bibitem{li2020qfedavg} T.~Li, M.~Sanjabi, A.~Beirami, and V.~Smith, ``Fair resource allocation in federated learning,'' in \emph{Proc.\ ICLR}, 2020.
+\bibitem{cao2021fltrust} X.~Cao, M.~Fang, J.~Liu, and N.~Z.~Gong, ``FLTrust: Byzantine-robust federated learning via trust bootstrapping,'' in \emph{Proc.\ NDSS}, 2021.
+\bibitem{oakdenrayner2020} L.~Oakden-Rayner, J.~Dunnmon, G.~Carneiro, and C.~R\'e, ``Hidden stratification causes clinically meaningful failures in machine learning for medical imaging,'' in \emph{Proc.\ ACM CHIL}, 2020, pp.~151--159.
+\bibitem{obermeyer2019} Z.~Obermeyer, B.~Powers, C.~Vogeli, and S.~Mullainathan, ``Dissecting racial bias in an algorithm used to manage the health of populations,'' \emph{Science}, vol.~366, no.~6464, pp.~447--453, 2019.
+\bibitem{burnell2023} R.~Burnell et al., ``Rethink reporting of evaluation results in AI,'' \emph{Science}, vol.~380, no.~6641, pp.~136--138, 2023.
+\bibitem{collins2024} G.~S.~Collins et al., ``TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods,'' \emph{BMJ}, vol.~385, e078378, 2024.
+\bibitem{sener2018} O.~Sener and V.~Koltun, ``Multi-task learning as multi-objective optimization,'' in \emph{Proc.\ NeurIPS}, vol.~31, 2018.
+\bibitem{chen2018gradnorm} Z.~Chen, V.~Badrinarayanan, C.-Y.~Lee, and A.~Rabinovich, ``GradNorm: Gradient normalization for adaptive loss balancing in deep multitask networks,'' in \emph{Proc.\ ICML}, 2018, pp.~794--803.
+\bibitem{kendall2018} A.~Kendall, Y.~Gal, and R.~Cipolla, ``Multi-task learning using uncertainty to weigh losses for scene geometry and semantics,'' in \emph{Proc.\ CVPR}, 2018, pp.~7482--7491.
+\bibitem{yu2020pcgrad} T.~Yu, S.~Kumar, A.~Gupta, S.~Levine, K.~Hausman, and C.~Finn, ``Gradient surgery for multi-task learning,'' in \emph{Proc.\ NeurIPS}, 2020, pp.~5824--5836.
+\bibitem{lin2017focal} T.-Y.~Lin, P.~Goyal, R.~Girshick, K.~He, and P.~Doll\'ar, ``Focal loss for dense object detection,'' in \emph{Proc.\ ICCV}, 2017, pp.~2999--3007.
+\bibitem{hanley1982} J.~A.~Hanley and B.~J.~McNeil, ``The meaning and use of the area under a receiver operating characteristic (ROC) curve,'' \emph{Radiology}, vol.~143, no.~1, pp.~29--36, 1982.
+\bibitem{ojala2010} M.~Ojala and G.~C.~Garriga, ``Permutation tests for studying classifier performance,'' \emph{J.\ Mach.\ Learn.\ Res.}, vol.~11, pp.~1833--1863, 2010.
+\bibitem{gpaq} World Health Organization, ``Global Physical Activity Questionnaire (GPAQ) analysis guide,'' Geneva: WHO. [Online]. Available: \url{https://cdn.who.int/media/docs/default-source/ncds/ncd-surveillance/gpaq-analysis-guide.pdf}. Accessed: Sep.~26, 2026.
+\bibitem{who2020} World Health Organization, \emph{WHO Guidelines on Physical Activity and Sedentary Behaviour}. Geneva: WHO, 2020.
+\bibitem{patel2010} A.~V.~Patel et al., ``Leisure time spent sitting in relation to total mortality in a prospective cohort of US adults,'' \emph{Am.\ J.\ Epidemiol.}, vol.~172, no.~4, pp.~419--429, 2010.
+\bibitem{watson2015} N.~F.~Watson et al., ``Recommended amount of sleep for a healthy adult,'' \emph{Sleep}, vol.~38, no.~6, pp.~843--844, 2015.
+\bibitem{kroenke2001} K.~Kroenke, R.~L.~Spitzer, and J.~B.~W.~Williams, ``The PHQ-9: Validity of a brief depression severity measure,'' \emph{J.\ Gen.\ Intern.\ Med.}, vol.~16, no.~9, pp.~606--613, 2001.
+\bibitem{who2000} World Health Organization, ``Obesity: preventing and managing the global epidemic,'' WHO Tech.\ Rep.\ Ser.\ 894, Geneva, 2000.
+\bibitem{idler1997} E.~L.~Idler and Y.~Benyamini, ``Self-rated health and mortality: a review of twenty-seven community studies,'' \emph{J.\ Health Soc.\ Behav.}, vol.~38, no.~1, pp.~21--37, 1997.
+\bibitem{kingma2015} D.~P.~Kingma and J.~Ba, ``Adam: A method for stochastic optimization,'' in \emph{Proc.\ ICLR}, 2015.
+\bibitem{mann1947} H.~B.~Mann and D.~R.~Whitney, ``On a test of whether one of two random variables is stochastically larger than the other,'' \emph{Ann.\ Math.\ Statist.}, vol.~18, no.~1, pp.~50--60, 1947.
+\bibitem{youden1950} W.~J.~Youden, ``Index for rating diagnostic tests,'' \emph{Cancer}, vol.~3, no.~1, pp.~32--35, 1950.
+\bibitem{hardt2016} M.~Hardt, E.~Price, and N.~Srebro, ``Equality of opportunity in supervised learning,'' in \emph{Proc.\ NIPS}, 2016, pp.~3315--3323.
+\bibitem{wilcoxon1945} F.~Wilcoxon, ``Individual comparisons by ranking methods,'' \emph{Biometrics Bull.}, vol.~1, no.~6, pp.~80--83, 1945.
+\bibitem{holm1979} S.~Holm, ``A simple sequentially rejective multiple test procedure,'' \emph{Scand.\ J.\ Statist.}, vol.~6, no.~2, pp.~65--70, 1979.
+\bibitem{lundberg2017} S.~M.~Lundberg and S.-I.~Lee, ``A unified approach to interpreting model predictions,'' in \emph{Proc.\ NeurIPS}, 2017, pp.~4765--4774.
+\bibitem{lorant2003} V.~Lorant, D.~Deli\`ege, W.~Eaton, A.~Robert, P.~Philippot, and M.~Ansseau, ``Socioeconomic inequalities in depression: a meta-analysis,'' \emph{Am.\ J.\ Epidemiol.}, vol.~157, no.~2, pp.~98--112, 2003.
+\bibitem{braveman2014} P.~Braveman and L.~Gottlieb, ``The social determinants of health: it's time to consider the causes of the causes,'' \emph{Public Health Rep.}, vol.~129, suppl.~2, pp.~19--31, 2014.
+\bibitem{mandrekar2010} J.~N.~Mandrekar, ``Receiver operating characteristic curve in diagnostic test assessment,'' \emph{J.\ Thorac.\ Oncol.}, vol.~5, no.~9, pp.~1315--1316, 2010.
+\end{thebibliography}
+
+\end{document}

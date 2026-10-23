@@ -1,0 +1,9 @@
+# versions used for the paper (Python 3.13, CPU only)
+numpy==2.4.6
+pandas==2.3.0
+scipy==1.16.0
+scikit-learn==1.7.0
+statsmodels==0.14.6
+torch==2.13.0
+matplotlib==3.10.3
+shap==0.52.0

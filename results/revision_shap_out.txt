@@ -1,0 +1,43 @@
+   fs dimension                    group  n_seeds  mean_abs_shap  ci_lo  ci_hi  top_share  kendall_w  direction_r direction_consistent
+orig6  Activity                      age       10          0.108  0.105  0.111        1.0      0.971        0.991                 True
+orig6  Activity             sex (female)       10          0.071  0.068  0.073        0.0      0.971        0.989                 True
+orig6  Activity             income ratio       10          0.042  0.040  0.045        0.0      0.971       -0.971                 True
+orig6      Diet             sex (female)       10          0.063  0.061  0.065        1.0      0.907       -0.982                 True
+orig6      Diet           race/ethnicity       10          0.039  0.036  0.041        0.0      0.907          NaN                  NaN
+orig6      Diet                      age       10          0.033  0.030  0.036        0.0      0.907       -0.926                 True
+orig6    Mental             income ratio       10          0.043  0.040  0.046        1.0      0.990       -0.975                 True
+orig6    Mental           race/ethnicity       10          0.027  0.026  0.028        0.0      0.990          NaN                  NaN
+orig6    Mental             sex (female)       10          0.022  0.021  0.023        0.0      0.990        0.936                 True
+orig6 Metabolic              systolic BP       10          0.072  0.066  0.077        0.6      0.952        0.845                 True
+orig6 Metabolic           race/ethnicity       10          0.070  0.066  0.074        0.4      0.952          NaN                  NaN
+orig6 Metabolic             sex (female)       10          0.053  0.049  0.056        0.0      0.952        0.906                 True
+orig6 Sedentary             income ratio       10          0.055  0.053  0.057        0.9      0.904        0.985                 True
+orig6 Sedentary           race/ethnicity       10          0.048  0.044  0.051        0.1      0.904          NaN                  NaN
+orig6 Sedentary                      age       10          0.019  0.017  0.022        0.0      0.904       -0.794                 True
+orig6     Sleep           race/ethnicity       10          0.051  0.049  0.053        1.0      0.910          NaN                  NaN
+orig6     Sleep             sex (female)       10          0.032  0.031  0.033        0.0      0.910       -0.962                 True
+orig6     Sleep                      age       10          0.020  0.018  0.022        0.0      0.910       -0.059                False
+orig6 Wellbeing             income ratio       10          0.091  0.088  0.094        1.0      0.910       -0.980                 True
+orig6 Wellbeing           race/ethnicity       10          0.044  0.041  0.048        0.0      0.910          NaN                  NaN
+orig6 Wellbeing              systolic BP       10          0.041  0.037  0.045        0.0      0.910        0.916                 True
+ rich  Activity                      age       10          0.079  0.075  0.084        0.6      0.867        0.989                 True
+ rich  Activity             sex (female)       10          0.071  0.068  0.074        0.4      0.867        0.987                 True
+ rich  Activity           race/ethnicity       10          0.034  0.032  0.035        0.0      0.867          NaN                  NaN
+ rich      Diet             sex (female)       10          0.057  0.054  0.060        1.0      0.783       -0.980                 True
+ rich      Diet           race/ethnicity       10          0.033  0.030  0.036        0.0      0.783          NaN                  NaN
+ rich      Diet cholesterol (total, HDL)       10          0.030  0.028  0.033        0.0      0.783          NaN                  NaN
+ rich    Mental          n_prescriptions       10          0.037  0.035  0.038        1.0      0.862        0.967                 True
+ rich    Mental              care_visits       10          0.025  0.023  0.027        0.0      0.862        0.954                 True
+ rich    Mental           marital status       10          0.023  0.021  0.026        0.0      0.862          NaN                  NaN
+ rich Metabolic cholesterol (total, HDL)       10          0.105  0.102  0.108        1.0      0.934          NaN                  NaN
+ rich Metabolic             sex (female)       10          0.079  0.076  0.082        0.0      0.934        0.971                 True
+ rich Metabolic                      age       10          0.077  0.073  0.082        0.0      0.934       -0.950                 True
+ rich Sedentary                education       10          0.044  0.041  0.047        0.8      0.853        0.974                 True
+ rich Sedentary             income ratio       10          0.039  0.036  0.042        0.2      0.853        0.979                 True
+ rich Sedentary                      age       10          0.032  0.029  0.034        0.0      0.853       -0.952                 True
+ rich     Sleep           race/ethnicity       10          0.052  0.050  0.054        1.0      0.815          NaN                  NaN
+ rich     Sleep             sex (female)       10          0.031  0.029  0.033        0.0      0.815       -0.976                 True
+ rich     Sleep                  smoking       10          0.018  0.017  0.020        0.0      0.815          NaN                  NaN
+ rich Wellbeing                education       10          0.054  0.051  0.057        0.5      0.951       -0.968                 True
+ rich Wellbeing          n_prescriptions       10          0.053  0.050  0.056        0.5      0.951        0.978                 True
+ rich Wellbeing             income ratio       10          0.045  0.043  0.047        0.0      0.951       -0.957                 True

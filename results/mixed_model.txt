@@ -1,0 +1,24 @@
+                              Mixed Linear Model Regression Results
+=================================================================================================
+Model:                          MixedLM              Dependent Variable:              masking_gap
+No. Observations:               540                  Method:                          REML       
+No. Groups:                     20                   Scale:                           0.0020     
+Min. group size:                27                   Log-Likelihood:                  854.2068   
+Max. group size:                27                   Converged:                       Yes        
+Mean group size:                27.0                                                             
+-------------------------------------------------------------------------------------------------
+                                                       Coef.  Std.Err.   z    P>|z| [0.025 0.975]
+-------------------------------------------------------------------------------------------------
+Intercept                                               0.118    0.007 16.592 0.000  0.104  0.132
+C(method, Treatment('fedavg'))[T.centralized]          -0.009    0.008 -1.066 0.286 -0.025  0.007
+C(method, Treatment('fedavg'))[T.centralized_weighted] -0.008    0.008 -0.924 0.355 -0.024  0.009
+C(method, Treatment('fedavg'))[T.csagg]                 0.001    0.008  0.114 0.909 -0.015  0.017
+C(method, Treatment('fedavg'))[T.ditto]                -0.003    0.008 -0.315 0.753 -0.019  0.014
+C(method, Treatment('fedavg'))[T.federated_separate]   -0.010    0.008 -1.206 0.228 -0.026  0.006
+C(method, Treatment('fedavg'))[T.qfedavg]              -0.003    0.008 -0.350 0.726 -0.019  0.013
+C(method, Treatment('fedavg'))[T.scaffold]             -0.007    0.008 -0.799 0.424 -0.023  0.010
+C(method, Treatment('fedavg'))[T.seqlocal_fedavg]      -0.004    0.008 -0.528 0.597 -0.020  0.012
+C(seed)[T.123]                                         -0.001    0.005 -0.237 0.813 -0.010  0.008
+C(seed)[T.456]                                         -0.006    0.005 -1.217 0.223 -0.015  0.004
+Group Var                                               0.000    0.002                           
+=================================================================================================

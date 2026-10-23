@@ -1,0 +1,120 @@
+\section{Introduction}
+
+Consumer wellness platforms summarize sleep, activity, mental health and other dimensions in a single composite score, usually a proprietary weighted average~\cite{doherty2025,whoop2024,garmin2024,oura2024}. A good composite can hide a poor dimension. This already happens in the labels: among adults in the 2015--2018 National Health and Nutrition Examination Survey (NHANES)~\cite{nhanes2015}, 35.2\% of those sleeping under seven hours and 18.6\% of those screening positive for depression (PHQ-9 $\geq$ 10) still have a composite (here, the share of seven dimensions not flagged poor) at or above the median. When a learned model produces the composite, the question becomes: does the model fail on one dimension while the overall score still looks fine?
+
+Federated learning (FL) makes this question both more important and harder to answer. Wellness data are private and differ across demographic groups~\cite{rieke2020}, so models are trained across sites that keep their data, and an auditor usually sees only each client's per-dimension results. We call a dimension \emph{masked} when the model predicts it clearly worse than the others while overall performance still looks acceptable. We know of no statistic for this, so we introduce one, the \emph{Masking Gap} (MG): for each client, the average of the per-dimension areas under the ROC curve (AUCs) minus the smallest of them. The average is what an overall report conveys; the minimum is the dimension it can hide. A client whose seven AUCs average 0.65 while its worst sits at 0.50 has MG = 0.15.
+
+MG is easy to compute, but it has a built-in flaw. A minimum never exceeds a mean, so MG is never negative, and federated clients have small test sets, so even a model with no skill produces a sizable MG. A raw MG therefore means little on its own. An auditor needs to know how large MG is \emph{when no dimension is actually failing}, and how far the observed MG exceeds that.
+
+We study this with 20 income-by-age clients built from NHANES, in two stages. A \emph{baseline} stage trains nine conditions (centralized training, six FL aggregation schemes and two variants that train each dimension separately) with a simple pipeline: six raw inputs, one learning rate, three seeds and the final model evaluated. A \emph{full protocol} then runs all nine, plus FedProx, with validation-based model selection, standardized inputs, tuned learning rates, ten seeds, losses for class imbalance, a richer leakage-audited feature set and three client partitions. The baseline shows how a raw statistic misleads and what a per-dimension audit catches; the full protocol tests which findings survive careful training. Our contributions:
+
+\begin{enumerate}
+\item \textbf{A calibrated masking audit.} We introduce MG and derive its distribution under chance (its \emph{null}), exactly from each client's class counts and by permuting labels. From the null we report the \emph{MG-excess} (observed MG minus its chance level), severity tiers, and the test size a client needs to detect a gap of a given size.
+\item \textbf{Per-client MG in the baseline is mostly noise.} Across the nine baseline conditions (20 clients, 3 seeds), per-client MG (0.106--0.117) is close to its chance level (0.103); no condition differs after Holm correction, and 90\% of client results lie within noise. A real excess appears in every condition only with richer features, and it is small ($\approx$0.02, a fifth of the raw MG).
+\item \textbf{Two real failures that the composite hides.} A per-dimension audit finds federated outputs at chance in the baseline (Sleep and Mental AUC $\approx$0.5), caused by unscaled inputs; after standardization, FedAvg trails centralized training by 0.008 macro-AUC (AUC averaged over dimensions; at most 0.013 on any dimension). Separately, a second statistic we introduce, the \emph{composite blind spot} $\Delta_d$, measures how much AUC a dimension loses when only the composite is shown. It is positive in every full-protocol configuration ($\Delta_d$ = 0.02--0.16 AUC, all CIs above zero).
+\item \textbf{Robustness.} Near-zero sensitivity for Sleep and Mental at the default 0.5 threshold is a threshold artifact (tuned sensitivity 0.51--0.70). No FL scheme or per-dimension variant changes pooled MG (class weighting lowers it only by lowering AUC), the results hold under three client partitions, and one global threshold leaves income-group sensitivity gaps of up to 0.86.
+\end{enumerate}
+
+\section{Related Work}
+
+\emph{FL for health.} FedAvg (McMahan et al.~\cite{mcmahan2017}) trains a shared model by averaging locally computed updates; differences between sites are the main obstacle in health deployments~\cite{rieke2020,grataloup2024}. Remedies change how updates are aggregated: proximal regularization (FedProx, Li et al.~\cite{li2020fedprox}), control variates (SCAFFOLD, Karimireddy et al.~\cite{karimireddy2020}), personalization (Ditto, Li et al.~\cite{li2021ditto}; Fallah et al.~\cite{fallah2020}), loss-based reweighting for fairness (q-FedAvg, Li et al.~\cite{li2020qfedavg}) and trust weighting by the cosine similarity of client updates (FLTrust, Cao et al.~\cite{cao2021fltrust}). All target differences between clients on a single objective; none checks differences between output dimensions within a client.
+
+\emph{Aggregate metrics hide subgroup failures.} An overall metric can hide failures on clinically important subsets~\cite{oakdenrayner2020} or groups~\cite{obermeyer2019}, so evaluations should report results by subgroup and quantify uncertainty~\cite{burnell2023,collins2024}. Composite scores are now common in consumer wearables~\cite{doherty2025}. We apply the same idea to the dimensions of a composite score: we introduce a statistic for the gap between them and give it the chance baseline that small federated clients need.
+
+\emph{Multi-task training.} When several task losses are summed, the tasks can conflict~\cite{sener2018} and some can dominate training~\cite{chen2018gradnorm}; loss balancing~\cite{chen2018gradnorm,kendall2018} and gradient surgery~\cite{yu2020pcgrad} reduce this. Class imbalance makes it worse; focal loss~\cite{lin2017focal} and class weighting are standard remedies and serve as baselines here.
+
+\emph{AUC uncertainty and permutation tests.} An AUC gets noisier as the smaller class shrinks~\cite{hanley1982}. The minimum of several noisy AUCs is therefore biased downward, which biases MG upward. Permuting labels gives an exact null for classifier performance when scores carry no information~\cite{ojala2010}; we use it per client and for the whole population.
+
+\section{Data and Methods}
+
+\subsection{Cohort, dimensions and clients}
+
+NHANES samples the U.S.\ civilian non-institutionalized population. Of the 19,225 participants in the 2015--2016 and 2017--2018 cycles, 11,848 were adults, and 8,353 (aged 18--80) had valid inputs and labels. We do not apply survey weights, so prevalences describe this sample, not the U.S.\ population. Table~\ref{tab:dims} defines the seven binary ``poor'' labels. Each uses a published cut-point except Diet, which uses the sample median because no guideline exists for total (as opposed to added) sugar. Clients combine five poverty-income-ratio bands ($<$1, 1--2, 2--3, 3--4, $\geq$4) with four age bands (18--35, 36--50, 51--64, $\geq$65), giving 20 clients of 183--702 records. Each seed draws an 80/20 train/test split stratified by client, so a client's test set holds only 37--141 records.
+
+\begin{table}[t]
+\caption{Wellness dimensions (analytic sample, $n=8{,}353$). Activity: total MET-min/week over work, transport and leisure, scored as in the WHO GPAQ guide~\cite{gpaq} (vigorous 8 MET, moderate 4 MET); 600 MET-min equals the WHO minimum of 150 min of moderate activity per week~\cite{who2020}. Sedentary: PAD680 is total daily sitting, while the 6 h cut-point comes from leisure-time sitting~\cite{patel2010}, so this anchor is approximate. Prev.: share flagged poor. Eval.: clients (of 20) whose test set has $\geq$5 positives and $\geq$5 negatives, range over the three baseline seeds.}
+\label{tab:dims}
+\centering\small
+\setlength{\tabcolsep}{1.8pt}
+\begin{tabular}{@{}llllr@{\hspace{6pt}}c@{}}
+\toprule
+Dimension & Variable & Poor if & Anchor & Prev. & Eval. \\
+\midrule
+Sleep & SLD012 & $<$7 h/night & \cite{watson2015} & 23.5\% & 20 \\
+Activity & PAQ MET & $<$600 MET-min/wk & \cite{who2020} & 36.5\% & 20 \\
+Sedentary & PAD680 & $>$360 min/day & \cite{patel2010} & 36.1\% & 20 \\
+Mental & PHQ-9 & score $\geq$10 & \cite{kroenke2001} & 8.2\% & 11--14 \\
+Metabolic & BMXBMI & BMI $\geq$30 & \cite{who2000} & 41.5\% & 20 \\
+Wellbeing & HSD010 & fair/poor & \cite{idler1997} & 23.8\% & 17--19 \\
+Diet & DR1TSUGR & $>$ median sugar & --- & 50.0\% & 20 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Training}
+
+All conditions use the same neural network: a shared 128--64 ReLU backbone with seven sigmoid outputs, one per dimension, trained with Adam~\cite{kingma2015}, batch size 32 and the unweighted sum of the seven binary cross-entropy losses.
+
+Both stages share this network, the clients and, for each seed, the test set.
+
+\emph{Baseline stage.} Six unscaled inputs: age, sex, poverty-income ratio, race/ethnicity code, and mean systolic and diastolic blood pressure. Learning rate $10^{-3}$, seeds 42, 123 and 456, and the final model is evaluated. Nine conditions, C1--C8 in Table~\ref{tab:conds}. Centralized models train for 150 epochs; federated conditions use 50 rounds of 3 local epochs.
+
+\begin{table}[t]
+\caption{Training conditions. In the baseline, Ditto, q-FedAvg and CS-Agg use $\lambda{=}0.1$, $q{=}1$ and 10 warm-up rounds; the full protocol tunes them.}
+\label{tab:conds}
+\centering\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lp{0.79\columnwidth}@{}}
+\toprule
+C1 & Centralized training, one network with seven outputs \\
+C2 & Seven separate centralized single-output networks \\
+C2-FL & Seven separate single-output FedAvg federations \\
+C3 & FedAvg: local updates averaged by client size (McMahan et al.~\cite{mcmahan2017}) \\
+C4 & SCAFFOLD: control variates correct client drift (Karimireddy et al.~\cite{karimireddy2020}); Adam steps in the baseline, SGD in the full protocol \\
+C5 & CS-Agg: after plain warm-up rounds, each client is weighted by the mean cosine similarity of its update to the other clients' updates (shifted to be non-negative, normalized) \\
+C6 & Ditto: personalized client models pulled toward the global model (Li et al.~\cite{li2021ditto}) \\
+C7 & q-FedAvg: clients with higher loss weighted more (Li et al.~\cite{li2020qfedavg}) \\
+C8 & FedAvg in which each local batch takes seven separate update steps, one per dimension \\
+C9 & FedProx: proximal term toward the global model (Li et al.~\cite{li2020fedprox}); full protocol only \\
++cw, +focal & C1 or C3 with class-weighted or focal loss; full protocol only \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\emph{Full protocol.} We hold out 12.5\% of the training data (10\% overall, stratified by client) for validation and evaluate the checkpoint (every 5 epochs, or every round) with the best validation macro-AUC; C2-FL picks the round for each dimension separately. Continuous inputs are standardized and race/ethnicity is one-hot encoded, using training-set statistics only; under FL, clients would share global means and variances, which secure aggregation of sums can provide. The learning rate is tuned once on a separate seed (2026) and then fixed. The grid starts at $\{3{\times}10^{-3}, 10^{-3}, 3{\times}10^{-4}, 10^{-4}\}$ and is widened by a half-decade whenever the best value lies at its edge, until it is interior, which it is for every condition. We use ten evaluation seeds; since each draws a different client-stratified split, this is repeated random-subsampling cross-validation.
+
+We run all nine conditions with these settings. SCAFFOLD takes plain local SGD steps (grid $\{0.3, 0.1, 0.03, 0.01\}$), as its control-variate update assumes. We add FedProx (C9, Li et al.~\cite{li2020fedprox}), tuning its proximal weight $\mu \in \{0.001, 0.01, 0.1\}$ with the learning rate. Ditto's $\lambda \in \{0.01, 0.1, 1\}$, q-FedAvg's $q \in \{0.1, 1, 5\}$ and CS-Agg's warm-up $\in \{5, 10, 20\}$ rounds are tuned on the same seed at the selected learning rate. We also run C1 and C3 with two losses for class imbalance: class-weighted cross-entropy (positive weight $n^-/n^+$ per dimension, computed by each client, capped at 20) and focal loss ($\gamma{=}2$)~\cite{lin2017focal}.
+
+\emph{Inputs and partitions.} We compare the six base inputs (11 columns after encoding) with an \emph{enriched} set of 38 columns that adds education, marital status, household size, U.S.\ birth, pulse, HbA1c, total and HDL cholesterol, smoking status, insurance, routine care, care visits, hospitalization, diagnosed diabetes, hypertension, high cholesterol, asthma, cardiovascular disease and cancer, and prescription count. All are measured on the full exam sample, so no client shrinks. To prevent leakage, no variable comes from a questionnaire or exam component that defines a label (SLQ, PAQ/PAD, DPQ, BMX, HSQ and HUQ010, DR1/DR2). Besides the income-by-age clients, FedAvg is trained on two other partitions with the same test sets: a fixed random split into 20 equal clients (no heterogeneity) and 12 race/ethnicity $\times$ sex clients. Centralized predictions are regrouped by the same clients.
+
+\subsection{Measures}
+
+\emph{Per-dimension AUC.} For client $c$ and dimension $d$, $\AUC_{c,d}$ is the probability that a randomly chosen poor case gets a higher predicted risk than a randomly chosen non-poor case (0.5 = chance). We compute it only when the client's test set has at least 5 cases of each class; otherwise the dimension is left out of that client's statistics.
+
+\emph{Masking Gap.} For client $c$, over the dimensions $E_c$ with a computable AUC, we define
+\begin{equation}
+\MG_c = \frac{1}{|E_c|}\sum_{d\in E_c}\AUC_{c,d} - \min_{d\in E_c}\AUC_{c,d} \;\geq\; 0 .
+\end{equation}
+MG is zero when all dimensions are predicted equally well and grows as the worst falls behind the average. We compute it per client, as an FL audit would, and on the pooled test set (population level, below).
+
+\emph{Calibrating MG against chance.} Under the null hypothesis $H_0$ that scores carry no information about any label, the ranks of the $k$ positives among $n$ records are a uniformly random subset. We draw $10^4$ null AUCs per client, seed and dimension from its exact $(k,n)$ (\emph{random-score null}, used for the baseline) and, for the full protocol, shuffle test rows jointly across all seven labels $10^3$ times (\emph{label-permutation null}, which keeps the correlation between labels)~\cite{ojala2010}. We report $\text{MG-excess}_c = \MG_c - \mathbb{E}_0[\MG_c]$, the observed MG minus its chance level, which can be negative, and the percentile of $\MG_c$ within its null. Severity tiers come from the null instead of fixed cut-points: \emph{within noise} (below the 95th null percentile), \emph{elevated} (95th--99th) and \emph{severe} ($\geq$ 99th). By chance alone, 5\% and 1\% of clients fall in the upper two tiers.
+
+\emph{A closed form for planning.} Under $H_0$, a dimension's AUC has mean 0.5 and variance $\sigma_d^2 = (n+1)/(12\,k_d(n-k_d))$, the null variance of the Mann--Whitney statistic~\cite{mann1947} divided by $(k_d(n-k_d))^2$, which is close to normal for moderate $n$. Treating the $K$ dimensions as independent with a common $\bar\sigma^2 = \frac{1}{K}\sum_d \sigma_d^2$ gives
+\begin{equation}
+\mathbb{E}_0[\MG] \approx c_K\,\bar\sigma, \qquad q_{0.95}[\MG] \approx c'_K\,\bar\sigma ,\label{eq:closed}
+\end{equation}
+where $c_K$ and $c'_K$ are the mean and 95th percentile of (mean $-$ min) of $K$ standard normals ($c_7 = 1.35$, $c'_7 = 2.27$). With prevalences $p_d$, $\bar\sigma^2 \approx \frac{1}{12n}\cdot\frac{1}{K}\sum_d \frac{1}{p_d(1-p_d)}$, so a client needs about $n \approx (c'_K/g)^2\,\frac{1}{12K}\sum_d \frac{1}{p_d(1-p_d)}$ test records before a gap $g$ exceeds chance at the 5\% level. No simulation is needed.
+
+\emph{Population level.} We also compute each dimension's AUC on the pooled test set (1,671 records) and the pooled MG with its permutation null; for the baseline, we report the client-averaged AUC per dimension with a 95\% cluster-bootstrap CI over clients.
+
+\emph{Composite blind spot.} MG compares dimensions with each other; it does not measure what the composite itself hides. For that we introduce a second statistic. Let $s_i = \frac{1}{7}\sum_d p_{i,d}$ be the composite risk a user would see. For dimension $d$,
+\begin{equation}
+\Delta_d = \AUC(p_{\cdot,d}; y_{\cdot,d}) - \AUC(s; y_{\cdot,d})
+\end{equation}
+is the AUC lost when only the composite is shown. $\Delta_d$ can be negative, if averaging correlated outputs detects dimension $d$ better than its own output does. A positive $\Delta_d$ is the expected direction; what an audit needs is its size, for which dimensions it is large, and whether any training scheme removes it.
+
+\emph{Thresholds and calibration.} For each dimension we report sensitivity (true-positive rate, TPR), false-positive rate and balanced accuracy at a 0.5 threshold and at a threshold chosen on validation data by Youden's $J$~\cite{youden1950}, plus AUPRC (compared with prevalence), Brier score and expected calibration error (ECE, 10 bins).
+
+\emph{Subgroup fairness.} For each dimension we compute AUC within each income band and age band, the worst-group AUC, the largest between-group AUC gap, and the between-group TPR gap at the tuned threshold (equal opportunity~\cite{hardt2016}).
+
+\emph{Statistics.} Client-level MG analyses treat the client as the unit (averaged over seeds, $n{=}20$), with 95\% CIs from a cluster bootstrap over clients, two-sided Wilcoxon signed-rank tests~\cite{wilcoxon1945}, Hodges--Lehmann effect sizes and Holm correction~\cite{holm1979} within each family of tests. A linear mixed model $\MG \sim \text{condition} + \text{seed} + (1\,|\,\text{client})$ serves as a sensitivity analysis. In the full protocol, pooled metrics are averaged over seeds with 95\% bootstrap CIs over seeds, and conditions are compared with paired $t$-tests over seeds ($n{=}10$, $t$-based 95\% CIs, Holm correction within each metric).

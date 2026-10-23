@@ -1,0 +1,13 @@
+ partition    fs        cond  n_seeds  n_clients  test_min  test_max    mg  mg_null  mg_excess  ci_lo  ci_hi  frac_ge_p95  macro_auc  blind_min  blind_max
+income_age orig6 centralized       10         20        37       141 0.113    0.103      0.010  0.003  0.017        0.095      0.651      0.022      0.148
+income_age orig6      fedavg       10         20        37       141 0.114    0.103      0.011  0.005  0.016        0.075      0.643      0.023      0.147
+income_age  rich centralized       10         20        37       141 0.126    0.102      0.024  0.017  0.030        0.120      0.697      0.032      0.126
+income_age  rich      fedavg       10         20        37       141 0.126    0.102      0.024  0.017  0.031        0.110      0.689      0.028      0.113
+    random orig6 centralized       10         20        65       109 0.112    0.100      0.011  0.005  0.018        0.070      0.651      0.022      0.148
+    random orig6      fedavg       10         20        65       109 0.111    0.100      0.011  0.005  0.017        0.065      0.651      0.022      0.149
+    random  rich centralized       10         20        65       109 0.125    0.100      0.025  0.019  0.031        0.125      0.697      0.032      0.126
+    random  rich      fedavg       10         20        65       109 0.124    0.100      0.024  0.018  0.030        0.120      0.695      0.026      0.123
+  race_sex orig6 centralized       10         12        24       332 0.121    0.091      0.030  0.020  0.040        0.242      0.651      0.022      0.148
+  race_sex orig6      fedavg       10         12        24       332 0.124    0.091      0.032  0.022  0.043        0.242      0.642      0.025      0.135
+  race_sex  rich centralized       10         12        24       332 0.134    0.091      0.043  0.032  0.056        0.292      0.697      0.032      0.126
+  race_sex  rich      fedavg       10         12        24       332 0.134    0.091      0.043  0.031  0.055        0.283      0.688      0.026      0.115

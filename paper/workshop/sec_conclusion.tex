@@ -1,0 +1,6 @@
+\section{Conclusion}
+
+On per-client test sets this small, a raw Masking Gap cannot tell masking from noise: here it was 0.11--0.13 whether or not real differences between dimensions existed. Three tools separate what the raw statistic mixes together. Calibrating MG against chance removes estimation noise, a per-dimension population audit finds dimensions a model fails to learn, and the composite blind spot measures signal the composite hides. In our data, noise dominated per-client MG in the baseline; the failed dimensions were real but caused by unscaled inputs; and the hidden signal held across centralized training, seven federated schemes, loss functions, feature sets and client partitions. Composite wellness scores should be released with their per-dimension outputs and audited with calibrated statistics.
+
+\section*{Data and Code Availability}
+NHANES 2015--2018 is public~\cite{nhanes2015}. Code to rebuild the splits, features, experiments, null distributions, tables and figures will be released upon acceptance (anonymized for review).
