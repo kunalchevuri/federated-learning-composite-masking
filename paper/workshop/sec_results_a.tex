@@ -4,9 +4,9 @@ We report the baseline stage first (Sections IV-A and IV-B) and then the full pr
 
 \subsection{Baseline: per-client Masking Gap is mostly noise}
 
-Table~\ref{tab:baseline} compares per-client MG in the nine baseline conditions with its chance level. Average per-client MG ranges from 0.106 to 0.117, yet a model with no information about any label would score 0.103 on the same test sets. MG-excess lies between $+0.002$ and $+0.013$, about a tenth of the raw MG, and no condition differs from chance after Holm correction (smallest adjusted $p = 0.27$). Of all 540 client--seed--condition results, 8.0\% are \emph{elevated} and 1.7\% \emph{severe}, against the 5\% and 1\% that chance predicts (Fig.~\ref{fig:null}b): a small real excess may exist, but it is too small to attribute to any condition.
+Table~\ref{tab:baseline} compares per-client MG in the nine baseline conditions with its chance level. Average per-client MG ranges from 0.106 to 0.117, yet a model with no information about any label would score 0.103 on the same test sets. MG-excess lies between $+0.002$ and $+0.013$, about a tenth of the raw MG, and no condition differs from chance after Holm correction (smallest adjusted $p = 0.27$). Of all 540 client--seed--condition results, 8.0\% are \emph{elevated} and 1.7\% \emph{severe}, against the 5\% and 1\% that chance predicts (Fig.~\ref{fig:null}b): a small real excess may exist, but it is too small to attribute to any condition. Over the equal-AUC null (0.101--0.103) the excess is also $+0.002$ to $+0.013$, with Holm $p \geq 0.27$.
 
-The simplest way to read MG would be with fixed cut-points, for example moderate at 0.10 and severe at 0.20. These sit near the median (0.10) and upper tail (95th percentile 0.13--0.24, depending on client) of the null, so they label noise as masking: under them, 52\% of the baseline results would be moderate or worse, whereas under calibrated tiers 90\% are within noise.
+Fixed cut-points (e.g., moderate at 0.10, severe at 0.20) sit near the null's median and upper tail, so they label noise as masking: 52\% of baseline results would be moderate or worse, whereas under calibrated tiers 90\% are within noise.
 
 \begin{table}[t]
 \caption{Baseline conditions compared with chance (3 seeds). MG-excess: mean over clients of MG minus its random-score null mean, with 95\% cluster-bootstrap CI. $p$: two-sided Wilcoxon test against 0, Holm-adjusted across conditions. $>$p95: share of client--seed results above their null 95th percentile (5\% expected by chance).}
@@ -46,7 +46,7 @@ C8 Per-dim.        & 0.111 & 0.103 & $+0.008$ [$0.000$, $0.016$] & 0.63 & 13.3\%
 \label{fig:power}
 \end{figure}
 
-\emph{Comparing conditions.} With clients as units, no condition differs in MG from its reference: C2 versus C1, C3 versus C1, and C2-FL, C6, C7 and C8 versus C3 all have Holm $p = 1.00$ (e.g., C2-FL versus FedAvg, Hodges--Lehmann $-0.010$ [$-0.027$, $0.005$]), and the mixed model finds no condition different from FedAvg ($p \geq 0.23$). Read with fixed cut-points instead, the same numbers would label about half of all client results as masked under every method.
+\emph{Comparing conditions.} With clients as units, no condition differs in MG from its reference: C2 versus C1, C3 versus C1, and C2-FL, C6, C7 and C8 versus C3 all have Holm $p = 1.00$ (e.g., C2-FL versus FedAvg, Hodges--Lehmann $-0.010$ [$-0.027$, $0.005$]), and the mixed model finds no condition different from FedAvg ($p \geq 0.23$).
 
 \subsection{Baseline population audit: federated outputs fall to chance}
 

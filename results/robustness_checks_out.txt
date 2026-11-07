@@ -1,0 +1,112 @@
+[corrected resampled t-test]
+        fs                  a            b            metric  n_seeds    diff   ci_lo   ci_hi  n_seeds_a_lower       p  p_holm
+0   orig6       fed_separate       fedavg  pooled_macro_auc       10  0.0008 -0.0030  0.0047                4  0.6326  1.0000
+1   orig6       fed_separate       fedavg         pooled_mg       10  0.0022 -0.0054  0.0097                3  0.5339  1.0000
+2   orig6          fedavg_pw       fedavg  pooled_macro_auc       10 -0.0167 -0.0235 -0.0099               10  0.0004  0.0067
+3   orig6          fedavg_pw       fedavg         pooled_mg       10 -0.0049 -0.0177  0.0078                7  0.4049  1.0000
+4   orig6       fedavg_focal       fedavg  pooled_macro_auc       10 -0.0026 -0.0042 -0.0010               10  0.0058  0.0946
+5   orig6       fedavg_focal       fedavg         pooled_mg       10  0.0013 -0.0069  0.0095                5  0.7310  1.0000
+6   orig6     centralized_pw  centralized  pooled_macro_auc       10 -0.0009 -0.0029  0.0012                7  0.3632  1.0000
+7   orig6     centralized_pw  centralized         pooled_mg       10  0.0005 -0.0054  0.0063                5  0.8615  1.0000
+8   orig6  centralized_focal  centralized  pooled_macro_auc       10 -0.0020 -0.0037 -0.0003               10  0.0239  0.3586
+9   orig6  centralized_focal  centralized         pooled_mg       10  0.0001 -0.0043  0.0046                5  0.9495  1.0000
+10  orig6             fedavg  centralized  pooled_macro_auc       10 -0.0081 -0.0113 -0.0048               10  0.0003  0.0063
+11  orig6             fedavg  centralized         pooled_mg       10 -0.0015 -0.0085  0.0055                7  0.6453  1.0000
+12  orig6   central_separate  centralized  pooled_macro_auc       10 -0.0015 -0.0049  0.0019                7  0.3487  1.0000
+13  orig6   central_separate  centralized         pooled_mg       10  0.0001 -0.0064  0.0066                5  0.9733  1.0000
+14  orig6           scaffold       fedavg  pooled_macro_auc       10  0.0074  0.0031  0.0116                0  0.0034  0.0618
+15  orig6           scaffold       fedavg         pooled_mg       10  0.0003 -0.0075  0.0082                5  0.9237  1.0000
+16  orig6              csagg       fedavg  pooled_macro_auc       10  0.0002 -0.0010  0.0014                4  0.7265  1.0000
+17  orig6              csagg       fedavg         pooled_mg       10  0.0015 -0.0016  0.0045                2  0.2964  1.0000
+18  orig6              ditto       fedavg  pooled_macro_auc       10  0.0040  0.0006  0.0074                0  0.0260  0.3636
+19  orig6              ditto       fedavg         pooled_mg       10  0.0020 -0.0052  0.0092                3  0.5475  1.0000
+20  orig6            qfedavg       fedavg  pooled_macro_auc       10 -0.0013 -0.0036  0.0010                8  0.2305  1.0000
+21  orig6            qfedavg       fedavg         pooled_mg       10 -0.0006 -0.0067  0.0056                5  0.8343  1.0000
+22  orig6           seqlocal       fedavg  pooled_macro_auc       10 -0.0000 -0.0015  0.0015                4  0.9954  1.0000
+23  orig6           seqlocal       fedavg         pooled_mg       10 -0.0005 -0.0030  0.0020                6  0.6677  1.0000
+24  orig6            fedprox       fedavg  pooled_macro_auc       10  0.0010 -0.0008  0.0027                2  0.2578  1.0000
+25  orig6            fedprox       fedavg         pooled_mg       10  0.0012 -0.0048  0.0072                4  0.6718  1.0000
+26   rich       fed_separate       fedavg  pooled_macro_auc       10 -0.0007 -0.0046  0.0032                7  0.7076  1.0000
+27   rich       fed_separate       fedavg         pooled_mg       10 -0.0028 -0.0078  0.0022                8  0.2300  1.0000
+28   rich          fedavg_pw       fedavg  pooled_macro_auc       10 -0.0144 -0.0181 -0.0107               10  0.0000  0.0003
+29   rich          fedavg_pw       fedavg         pooled_mg       10 -0.0105 -0.0175 -0.0035               10  0.0078  0.2030
+30   rich       fedavg_focal       fedavg  pooled_macro_auc       10 -0.0032 -0.0042 -0.0022               10  0.0000  0.0012
+31   rich       fedavg_focal       fedavg         pooled_mg       10  0.0001 -0.0040  0.0041                6  0.9731  1.0000
+32   rich     centralized_pw  centralized  pooled_macro_auc       10 -0.0032 -0.0066  0.0002               10  0.0651  0.7810
+33   rich     centralized_pw  centralized         pooled_mg       10  0.0022 -0.0033  0.0078                3  0.3809  1.0000
+34   rich  centralized_focal  centralized  pooled_macro_auc       10 -0.0036 -0.0048 -0.0024               10  0.0001  0.0023
+35   rich  centralized_focal  centralized         pooled_mg       10  0.0010 -0.0029  0.0048                3  0.5850  1.0000
+36   rich             fedavg  centralized  pooled_macro_auc       10 -0.0083 -0.0115 -0.0052               10  0.0002  0.0044
+37   rich             fedavg  centralized         pooled_mg       10  0.0019 -0.0048  0.0087                4  0.5357  1.0000
+38   rich   central_separate  centralized  pooled_macro_auc       10 -0.0018 -0.0048  0.0013                8  0.2179  1.0000
+39   rich   central_separate  centralized         pooled_mg       10  0.0007 -0.0059  0.0074                4  0.8137  1.0000
+40   rich           scaffold       fedavg  pooled_macro_auc       10  0.0071  0.0044  0.0097                0  0.0002  0.0041
+41   rich           scaffold       fedavg         pooled_mg       10  0.0001 -0.0046  0.0048                4  0.9734  1.0000
+42   rich              csagg       fedavg  pooled_macro_auc       10 -0.0004 -0.0020  0.0012                7  0.5904  1.0000
+43   rich              csagg       fedavg         pooled_mg       10 -0.0015 -0.0057  0.0026                7  0.4248  1.0000
+44   rich              ditto       fedavg  pooled_macro_auc       10  0.0035  0.0004  0.0067                1  0.0317  0.4126
+45   rich              ditto       fedavg         pooled_mg       10  0.0013 -0.0058  0.0084                4  0.6856  1.0000
+46   rich            qfedavg       fedavg  pooled_macro_auc       10 -0.0010 -0.0024  0.0005                9  0.1788  1.0000
+47   rich            qfedavg       fedavg         pooled_mg       10 -0.0013 -0.0066  0.0041                6  0.6040  1.0000
+48   rich           seqlocal       fedavg  pooled_macro_auc       10 -0.0025 -0.0034 -0.0016               10  0.0002  0.0035
+49   rich           seqlocal       fedavg         pooled_mg       10 -0.0014 -0.0062  0.0034                6  0.5333  1.0000
+50   rich            fedprox       fedavg  pooled_macro_auc       10 -0.0015 -0.0024 -0.0006               10  0.0056  0.0946
+51   rich            fedprox       fedavg         pooled_mg       10 -0.0015 -0.0056  0.0026                7  0.4234  1.0000
+
+[composite weights]
+                  delta_equal  delta_prevalence  delta_random_median  delta_random_p05  share_random_positive
+fs    dimension                                                                                             
+orig6 Activity         0.088             0.102                0.102             0.024                  0.998
+      Diet             0.072             0.066                0.071             0.026                  0.996
+      Mental           0.043             0.067                0.056             0.013                  0.966
+      Metabolic        0.024             0.018                0.045             0.006                  0.981
+      Sedentary        0.145             0.134                0.144             0.069                  1.000
+      Sleep            0.053             0.047                0.061             0.017                  0.994
+      Wellbeing        0.040             0.064                0.058             0.008                  0.986
+rich  Activity         0.090             0.103                0.099             0.033                  0.999
+      Diet             0.092             0.083                0.093             0.046                  0.999
+      Mental           0.051             0.078                0.064             0.023                  0.986
+      Metabolic        0.033             0.019                0.056             0.008                  0.995
+      Sedentary        0.117             0.107                0.122             0.051                  1.000
+      Sleep            0.069             0.071                0.075             0.041                  1.000
+      Wellbeing        0.059             0.089                0.075             0.016                  0.999
+
+[equal-AUC null]
+        stage         fs               cond      mg  eq_null  eq_excess   ci_lo   ci_hi  share_above_p95       p  p_holm
+0   baseline  orig6_raw   central_separate  0.1080   0.1010     0.0069 -0.0039  0.0189           0.0667  0.4980  1.0000
+1   baseline  orig6_raw        centralized  0.1068   0.1006     0.0062 -0.0044  0.0179           0.0667  0.4749  1.0000
+2   baseline  orig6_raw              csagg  0.1165   0.1032     0.0133  0.0038  0.0237           0.0667  0.0266  0.2664
+3   baseline  orig6_raw              ditto  0.1130   0.1022     0.0108  0.0016  0.0212           0.0833  0.0696  0.4871
+4   baseline  orig6_raw       fed_separate  0.1057   0.1032     0.0024 -0.0112  0.0158           0.1167  0.9563  1.0000
+5   baseline  orig6_raw             fedavg  0.1156   0.1032     0.0123  0.0032  0.0216           0.0500  0.0532  0.4254
+6   baseline  orig6_raw            qfedavg  0.1127   0.1033     0.0094 -0.0039  0.0226           0.1167  0.2305  1.0000
+7   baseline  orig6_raw           scaffold  0.1090   0.1034     0.0056 -0.0044  0.0154           0.0500  0.2943  1.0000
+8   baseline  orig6_raw           seqlocal  0.1112   0.1030     0.0083  0.0009  0.0158           0.1167  0.0826  0.4953
+9       eval      orig6   central_separate  0.1133   0.0996     0.0137  0.0058  0.0211           0.0950  0.0049  0.0583
+10      eval      orig6        centralized  0.1132   0.0996     0.0135  0.0067  0.0204           0.1050  0.0032  0.0410
+11      eval      orig6  centralized_focal  0.1132   0.0998     0.0134  0.0068  0.0200           0.0950  0.0017  0.0270
+12      eval      orig6     centralized_pw  0.1112   0.0996     0.0116  0.0055  0.0175           0.0800  0.0027  0.0380
+13      eval      orig6              csagg  0.1125   0.1001     0.0124  0.0068  0.0181           0.0650  0.0005  0.0101
+14      eval      orig6              ditto  0.1127   0.0999     0.0128  0.0072  0.0187           0.0800  0.0007  0.0142
+15      eval      orig6       fed_separate  0.1158   0.1002     0.0156  0.0091  0.0220           0.0950  0.0007  0.0142
+16      eval      orig6             fedavg  0.1139   0.1003     0.0136  0.0079  0.0193           0.0800  0.0002  0.0046
+17      eval      orig6       fedavg_focal  0.1147   0.1006     0.0141  0.0086  0.0195           0.0850  0.0001  0.0031
+18      eval      orig6          fedavg_pw  0.1109   0.1011     0.0097  0.0019  0.0176           0.0800  0.0400  0.3599
+19      eval      orig6            fedprox  0.1126   0.1002     0.0125  0.0067  0.0187           0.0900  0.0023  0.0349
+20      eval      orig6            qfedavg  0.1124   0.1004     0.0120  0.0061  0.0181           0.0750  0.0010  0.0183
+21      eval      orig6           scaffold  0.1104   0.0999     0.0105  0.0035  0.0178           0.0900  0.0121  0.1329
+22      eval      orig6           seqlocal  0.1130   0.1003     0.0127  0.0063  0.0190           0.0650  0.0014  0.0244
+23      eval       rich   central_separate  0.1268   0.0961     0.0308  0.0243  0.0368           0.1700  0.0000  0.0001
+24      eval       rich        centralized  0.1260   0.0958     0.0302  0.0236  0.0368           0.1450  0.0000  0.0001
+25      eval       rich  centralized_focal  0.1254   0.0961     0.0293  0.0233  0.0352           0.1400  0.0000  0.0001
+26      eval       rich     centralized_pw  0.1244   0.0962     0.0282  0.0212  0.0347           0.1550  0.0000  0.0001
+27      eval       rich              csagg  0.1251   0.0965     0.0286  0.0228  0.0345           0.1200  0.0000  0.0001
+28      eval       rich              ditto  0.1255   0.0962     0.0293  0.0231  0.0352           0.1200  0.0000  0.0001
+29      eval       rich       fed_separate  0.1261   0.0968     0.0293  0.0233  0.0352           0.1350  0.0000  0.0001
+30      eval       rich             fedavg  0.1261   0.0964     0.0296  0.0231  0.0363           0.1200  0.0000  0.0001
+31      eval       rich       fedavg_focal  0.1260   0.0969     0.0290  0.0227  0.0353           0.1300  0.0000  0.0001
+32      eval       rich          fedavg_pw  0.1267   0.0978     0.0289  0.0229  0.0346           0.1150  0.0000  0.0001
+33      eval       rich            fedprox  0.1258   0.0967     0.0291  0.0232  0.0350           0.1400  0.0000  0.0001
+34      eval       rich            qfedavg  0.1262   0.0966     0.0296  0.0236  0.0356           0.1450  0.0000  0.0001
+35      eval       rich           scaffold  0.1240   0.0963     0.0278  0.0210  0.0342           0.1250  0.0000  0.0002
+36      eval       rich           seqlocal  0.1261   0.0968     0.0293  0.0236  0.0351           0.1300  0.0000  0.0001

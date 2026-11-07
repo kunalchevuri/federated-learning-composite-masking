@@ -18,12 +18,19 @@
 
 \title{Masking or Noise? Null-Calibrated Auditing of Per-Dimension Failures Behind Composite Wellness Scores in Federated Learning}
 
-\author{\IEEEauthorblockN{Anonymous Authors}}
+\author{\IEEEauthorblockN{Kunal Chevuri}
+\IEEEauthorblockA{\textit{Prosper High School} \\
+Prosper, TX, USA}
+\and
+\IEEEauthorblockN{Sergei Chuprov}
+\IEEEauthorblockA{\textit{Department of Computer Science} \\
+\textit{University of Texas Rio Grande Valley} \\
+Edinburg, TX, USA}}
 
 \maketitle
 
 \begin{abstract}
-Consumer wellness apps combine several health dimensions, such as sleep, activity and mood, into one composite score, and the composite can look fine while one dimension fails. We introduce the Masking Gap to measure this: the average of the per-dimension areas under the receiver operating characteristic curve minus the lowest one. The Masking Gap is never negative, and under federated learning it must be estimated on each client's small test set, so a raw value can be pure noise. We therefore derive its distribution under chance, report how far an observed gap exceeds chance, and set severity tiers from that distribution. We study 20 income-by-age clients built from the 2015--2018 National Health and Nutrition Examination Survey (8,353 adults, seven dimensions) in two stages. In a baseline stage with nine centralized, federated and per-dimension training conditions, the per-client gap (0.106--0.117) was close to its chance level (0.103), and detecting a gap of 0.10 would need about 300 test records per client. A full protocol then ran all nine conditions and FedProx with validation-based model selection, tuned learning rates, ten seeds, class-weighted and focal losses, a leakage-audited 38-column feature set and three client partitions. Two real failures emerged. First, federated outputs at chance in the baseline were caused by unscaled inputs; after standardization, federated averaging trailed centralized training by only 0.008 in area under the curve averaged over dimensions (at most 0.013 on any dimension). Second, in every full-protocol configuration the composite score was worse than each dimension's own output at flagging that dimension's poor cases, by 0.02--0.16 in area under the curve. Near-zero sensitivity for sleep and depression at the default threshold was a threshold artifact (0.51--0.70 at validation-tuned thresholds). We end with practical recommendations for auditing composite health models trained with federated learning.
+Consumer wellness apps combine several health dimensions, such as sleep, activity and mood, into one composite score, and the composite can look fine while one dimension fails. We introduce the Masking Gap to measure this: the average of the per-dimension areas under the receiver operating characteristic curve minus the lowest one. The Masking Gap is never negative, and under federated learning it must be estimated on each client's small test set, so a raw value can be pure noise. We therefore derive its distribution when scores carry no signal, report how far an observed gap exceeds this reference, set severity tiers from it, and check the result against a reference in which every dimension has equal skill. We study 20 income-by-age clients built from the 2015--2018 National Health and Nutrition Examination Survey (8,353 adults, seven dimensions) in two stages. In a baseline stage with nine centralized, federated and per-dimension training conditions, the per-client gap (0.106--0.117) was close to its chance level (0.103), and a gap of 0.10 clears the chance 95th percentile only at about 300 test records per client. A full protocol then ran all nine conditions and FedProx with validation-based model selection, tuned learning rates, ten seeds, class-weighted and focal losses, a leakage-audited 38-column feature set and three client partitions. Two real failures emerged. First, federated outputs at chance in the baseline were caused by unscaled inputs; after standardization, federated averaging trailed centralized training by only 0.008 in area under the curve averaged over dimensions (at most 0.013 on any dimension). Second, in every full-protocol configuration the composite score was worse than each dimension's own output at flagging that dimension's poor cases, by 0.02--0.16 in area under the curve, and this held for prevalence-weighted and randomly weighted composites. Near-zero sensitivity for sleep and depression at the default threshold was a threshold artifact (0.51--0.70 at validation-tuned thresholds). We end with practical recommendations for auditing composite health models trained with federated learning.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -76,6 +83,7 @@ composite health scores, federated learning, model auditing, multi-task learning
 \bibitem{hardt2016} M.~Hardt, E.~Price, and N.~Srebro, ``Equality of opportunity in supervised learning,'' in \emph{Proc.\ NIPS}, 2016, pp.~3315--3323.
 \bibitem{wilcoxon1945} F.~Wilcoxon, ``Individual comparisons by ranking methods,'' \emph{Biometrics Bull.}, vol.~1, no.~6, pp.~80--83, 1945.
 \bibitem{holm1979} S.~Holm, ``A simple sequentially rejective multiple test procedure,'' \emph{Scand.\ J.\ Statist.}, vol.~6, no.~2, pp.~65--70, 1979.
+\bibitem{nadeau2003} C.~Nadeau and Y.~Bengio, ``Inference for the generalization error,'' \emph{Mach.\ Learn.}, vol.~52, no.~3, pp.~239--281, 2003.
 \bibitem{lundberg2017} S.~M.~Lundberg and S.-I.~Lee, ``A unified approach to interpreting model predictions,'' in \emph{Proc.\ NeurIPS}, 2017, pp.~4765--4774.
 \bibitem{lorant2003} V.~Lorant, D.~Deli\`ege, W.~Eaton, A.~Robert, P.~Philippot, and M.~Ansseau, ``Socioeconomic inequalities in depression: a meta-analysis,'' \emph{Am.\ J.\ Epidemiol.}, vol.~157, no.~2, pp.~98--112, 2003.
 \bibitem{braveman2014} P.~Braveman and L.~Gottlieb, ``The social determinants of health: it's time to consider the causes of the causes,'' \emph{Public Health Rep.}, vol.~129, suppl.~2, pp.~19--31, 2014.

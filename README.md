@@ -5,7 +5,7 @@ Code, data pipeline and results for the paper of the same title, accepted at the
 Consumer wellness apps combine several health dimensions (sleep, activity, mood, ...) into one composite score, and the composite can look fine while one dimension fails. This repository:
 
 - defines the **Masking Gap** (MG): the mean per-dimension AUC minus the lowest per-dimension AUC;
-- derives MG's distribution under chance (random-score and label-permutation nulls), reports **MG-excess** over chance, and sets severity tiers from the null's 95th and 99th percentiles;
+- derives MG's distribution when scores carry no signal (random-score and label-permutation nulls) and when every dimension has equal skill (equal-AUC null), reports **MG-excess** over these references, and sets severity tiers from the null's 95th and 99th percentiles;
 - gives a closed-form approximation of the chance level, which tells you how many test records per client are needed to resolve a given gap;
 - measures the **composite blind spot**, Δ_d = AUC(p_d) − AUC(mean_d p), which is how much worse the composite flags dimension *d* than that dimension's own output does;
 - trains nine centralized, federated and per-dimension conditions on 20 income × age clients built from NHANES 2015–2018, in a baseline stage and a full protocol.
@@ -89,6 +89,7 @@ python src/analyze_revision.py                # full protocol: permutation nulls
 python src/contrasts_ttest.py                 # paired contrasts between conditions over seeds
 python src/analyze_partitions.py              # alternative partitions
 python src/shap_stability.py                  # SHAP importance across seeds
+python src/robustness_checks.py               # equal-AUC null, composite weights, corrected t-test
 ```
 
 Set `REV_WORKERS` (training) or `SHAP_WORKERS` to control the number of parallel processes. The slowest conditions (C2, C2-FL, C6, C8) take hours on a laptop. [colab/](colab/) runs a fixed job list ([colab/jobs.json](colab/jobs.json)) on a Colab high-CPU runtime and saves each finished run to Google Drive; copy the resulting `.npz` files into `results/revision/`.
@@ -109,6 +110,7 @@ The per-run predictions and checkpoints (`results/revision/*.npz`, `*.pt`, about
 | Thresholds, calibration, fairness | `analyze_revision.py` | `results/revision_dims.csv`, `results/revision_table_fairness.csv`, `results/revision_groups.csv` |
 | Alternative partitions | `analyze_partitions.py` | `results/revision_partitions.csv` |
 | SHAP stability | `shap_stability.py` | `results/revision_shap_summary.csv` |
+| Equal-AUC null, composite weighting, overlap-corrected t-test | `robustness_checks.py` | `results/robust_equal_auc_null.csv`, `robust_composite_weights.csv`, `robust_corrected_ttest.csv` |
 
 ## Evaluation rule
 
